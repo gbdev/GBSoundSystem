@@ -409,6 +409,12 @@ SoundSystem_Init::
 	ld	[hl+],a
 	ld	[hl],a
 	ld	[wMusicSFXInstChnl3Lock],a
+	; clear all sfx pause timers
+	ld	hl,wMusicSFXInstPause
+	ld	[hl+],a
+	ld	[hl+],a
+	ld	[hl+],a
+	ld	[hl],a
 
 	; enable sound
 	ld	a,AUD3ENA_ON
@@ -657,7 +663,11 @@ SoundSystem_Process::
 	;-------------------------------
 	; channel 1
 	ld	hl,wMusicSFXInstPause
-	dec	[hl]
+	ld	a,[hl]
+	or	a			; is channel 1 active?
+	jr	z,SSFP_Inst1UpdateDone	; no, skip
+	dec	a
+	ld	[hl],a
 	jr	nz,SSFP_Inst1UpdateDone
 
 	; change the rom bank
@@ -684,7 +694,11 @@ SSFP_Inst1UpdateDone:
 	;-------------------------------
 	; channel 2
 	ld	hl,wMusicSFXInstPause+1
-	dec	[hl]
+	ld	a,[hl]
+	or	a			; is channel 2 active?
+	jr	z,SSFP_Inst2UpdateDone	; no, skip
+	dec	a
+	ld	[hl],a
 	jr	nz,SSFP_Inst2UpdateDone
 
 	; change the rom bank
@@ -711,7 +725,11 @@ SSFP_Inst2UpdateDone:
 	;-------------------------------
 	; channel 3
 	ld	hl,wMusicSFXInstPause+2
-	dec	[hl]
+	ld	a,[hl]
+	or	a			; is channel 3 active?
+	jr	z,SSFP_Inst3UpdateDone	; no, skip
+	dec	a
+	ld	[hl],a
 	jr	nz,SSFP_Inst3UpdateDone
 
 	; change the rom bank
@@ -738,7 +756,11 @@ SSFP_Inst3UpdateDone:
 	;-------------------------------
 	; channel 4
 	ld	hl,wMusicSFXInstPause+3
-	dec	[hl]
+	ld	a,[hl]
+	or	a			; is channel 4 active?
+	jr	z,SSFP_Inst4UpdateDone	; no, skip
+	dec	a
+	ld	[hl],a
 	jr	nz,SSFP_Inst4UpdateDone
 
 	; change the rom bank
@@ -774,13 +796,13 @@ SSFP_Inst4UpdateDone:
 	; channel 1
 	ld	a,[wChannelMusicEffects]
 	or	a			; is channel 1 playing music fx?
-	jr	z,SSFP_MusicFX_Done1	; no,skip to the next channel
+	jr	z,SSFP_MusicFX_Done1	; no, skip to the next channel
 
 	; check if sound effect active (no music fx then)
 	ld	b,a			; preserve wChannelMusicEffects[0]
 	ld	a,[wSoundFXLock]
 	bit	SFXLOCKB_CHANNEL1,a	; is channel 1 playing fx?
-	jr	z,SSFP_MusicFX_Done1	; no,skip to the next channel
+	jr	z,SSFP_MusicFX_Done1	; no, skip to the next channel
 
 	; call the fx handler
 	ld	a,b			; restore wChannelMusicEffects[0]
@@ -798,13 +820,13 @@ SSFP_MusicFX_Done1:	; some handlers return here
 	; channel 2
 	ld	a,[wChannelMusicEffects+1]
 	or	a			; is channel 2 playing music fx?
-	jr	z,SSFP_MusicFX_Done2	; no,skip to the next channel
+	jr	z,SSFP_MusicFX_Done2	; no, skip to the next channel
 
 	; check if sound effect active (no music fx then)
 	ld	b,a			; preserve wChannelMusicEffects[1]
 	ld	a,[wSoundFXLock]
 	bit	SFXLOCKB_CHANNEL2,a	; is channel 2 playing fx?
-	jr	z,SSFP_MusicFX_Done2	; no,skip to the next channel
+	jr	z,SSFP_MusicFX_Done2	; no, skip to the next channel
 
 	; call the fx handler
 	ld	a,b			; restore wChannelMusicEffects[1]
@@ -822,13 +844,13 @@ SSFP_MusicFX_Done2:	; some handlers return here
 	; channel 3
 	ld	a,[wChannelMusicEffects+2]
 	or	a			; is channel 3 playing music fx?
-	jr	z,SSFP_MusicFX_Done3	; no,skip to the next channel
+	jr	z,SSFP_MusicFX_Done3	; no, skip to the next channel
 
 	; check if sound effect active (no music fx then)
 	ld	b,a			; preserve wChannelMusicEffects[2]
 	ld	a,[wSoundFXLock]
 	bit	SFXLOCKB_CHANNEL3,a	; is channel 3 playing fx?
-	jr	z,SSFP_MusicFX_Done3	; no,skip to the next channel
+	jr	z,SSFP_MusicFX_Done3	; no, skip to the next channel
 
 	; call the fx handler
 	ld	a,b			; restore wChannelMusicEffects[2]
