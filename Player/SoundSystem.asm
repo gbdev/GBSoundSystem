@@ -927,13 +927,9 @@ ELSE
 SECTION	"SoundSystem_Music_Play",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
 ENDC
 
-; this needs some attention
-; for consistency, de should be used for the ptr instead of hl
 Music_Play::
 	push	bc
-	push	hl
 	call	Music_Pause
-	pop	hl
 	pop	bc
 
 	IF (SOUNDSYSTEM_WRAM_BANK != 0)
@@ -962,16 +958,15 @@ Music_Play::
 	ld	[wMusicSyncFlag],a
 
 	; clear effects
-	push	hl
 	ld	hl,wChannelMusicEffects
 	ld	[hl+],a
 	ld	[hl+],a
 	ld	[hl+],a
 	ld	[hl],a
-	pop	hl
 
 	; set command pointer to value of first order
-	push	hl
+	ld	h,d
+	ld	l,e
 	ld	a,[hl+]
 	ld	[wMusicCommandPtr],a
 	ld	a,[hl+]
@@ -982,13 +977,12 @@ Music_Play::
 	ld	a,[hl]
 	ld	[wMusicCommandBank+1],a
 	ENDC
-	pop	hl
 
 	; set order pointer to next order
-	ld	a,l
+	ld	a,e
 	add	4
 	ld	[wMusicOrderPtr],a
-	ld	a,h
+	ld	a,d
 	adc	0
 	ld	[wMusicOrderPtr+1],a
 

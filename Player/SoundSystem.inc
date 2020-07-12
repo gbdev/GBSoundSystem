@@ -105,11 +105,11 @@ SOUNDSYSTEM_INC	SET	1
 ;
 ; Arguments:
 ;    BC - bank id where the order table resides
-;    HL - pointer to the order table
+;    DE - pointer to the order table
 ;
 ; Example:
 ;    ld   bc,BANK(Music_s11space)
-;    ld   hl,Music_s11space
+;    ld   de,Music_s11space
 ;    call Music_Play
 
 
