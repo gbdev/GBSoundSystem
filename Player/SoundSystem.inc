@@ -189,12 +189,13 @@ SOUNDSYSTEM_INC	SET	1
 ; Labelled as 'SFX Table' in the exported data.
 ;
 ; Arguments:
-;    A - id (not byte offset) of the sound effect to play
-;    L - note (pitch) at which to play the sound effect
+;    B - id (not byte offset) of the sound effect to play
+;    C - note (pitch) at which to play the sound effect
 ;
 ; Example:
-;    ld   a,COOL_SFX_1
-;    ld   l,NOTE_MIDDLE_C
+;    ld   b,COOL_SFX_1
+;    ld   c,NOTE_MIDDLE_C
+;   ;ld   bc,(COOL_SFX_1<<8)|NOTE_MIDDLE_C    ; or this way as an optimization
 ;    call SFX_Play
 
 

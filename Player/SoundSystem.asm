@@ -466,6 +466,7 @@ SoundSystem_Process::
 
 	xor	$FF
 	jp	z,.nonewsfx
+	ld	b,a	; save
 
 	; change the rom bank
 	ld	a,[wSoundFXBank]
@@ -476,6 +477,7 @@ SoundSystem_Process::
 	ENDC
 
 	; lock & update SFX
+	ld	a,b	; restore
 	cpl
 	; calculate table plus index address
 	ld	b,a	;save
@@ -1168,34 +1170,26 @@ ELSE
 SECTION	"SoundSystem_SFX_Play",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
 ENDC
 
-; this needs some attention
-; i.e. pass sfx id in b (or d), note in c (or e)
-; the point is that only one reg needs to be pushed/popped
 SFX_Play::
-	push	hl
-	push	bc
-	push	af
-
 	IF (SOUNDSYSTEM_WRAM_BANK != 0)
 	ld	a,SOUNDSYSTEM_WRAM_BANK
 	ldh	[rSVBK],a
 	ENDC
 
+	; find an open channel, else put it on channel 4
 	ld	hl,wSoundFXStart
-	ld	c,4
+	ld	d,4
 .loop:
 	ld	a,[hl]
-	xor	$FF
-	jr	z,.found
+	xor	$FF		; is this channel open?
+	jr	z,.found	; yes, store the sfx data
 	inc	hl
-	dec	c
+	dec	d
 	jr	nz,.loop
 .found:
-	pop	af
+	ld	a,b
 	ld	[hl],a
-	pop	bc
-	pop	hl
-	ld	a,l
+	ld	a,c
 	ld	[wSoundFXNote],a
 
 	ret
