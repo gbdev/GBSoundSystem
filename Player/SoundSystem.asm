@@ -183,16 +183,12 @@ MUSIC_CMD_PLAYINSTNOTE		RB	1
 MUSIC_CMD_PLAYINST		RB	1
 
 MUSIC_CMD_SETVOLUME		RB	1
-;MUSIC_CMD_SETPANNING		RB	1
 MUSIC_CMD_VIBRATO_ON		RB	1
-;MUSIC_CMD_DUALNOTE_ON		RB	1
 MUSIC_CMD_EFFECT_OFF		RB	1
-;MUSIC_CMD_SETMASTERVOLUME	RB	1
 
 MUSIC_CMD_SYNCFLAG		RB	1
 
 MUSIC_CMD_ENDOFPATTERN		RB	1
-;MUSIC_CMD_LOOPPATTERN		RB	1
 MUSIC_CMD_GOTOORDER		RB	1
 MUSIC_CMD_ENDOFSONG		RB	1
 
@@ -216,8 +212,6 @@ RSRESET
 MUSIC_FX_NONE			RB	1
 MUSIC_FX_VIB1			RB	1
 MUSIC_FX_VIB2			RB	1
-;MUSIC_FX_DUALFREQ1		RB	1
-;MUSIC_FX_DUALFREQ2		RB	1
 
 MUSIC_FX_TRIPLEFREQ1		RB	1
 MUSIC_FX_TRIPLEFREQ2		RB	1
@@ -1395,48 +1389,6 @@ SSFP_MUSIC_FX1_VIB2:
 	jp	SSFP_MusicFX_Done1
 
 ; --------------------------------------------------------------------------------------------------------------------------
-IF DEF(MUSIC_FX_DUALFREQ1)
-IF (SOUNDSYSTEM_CODE_BANK == 0)
-SECTION	"SoundSystem_SSFP_MUSIC_FX1_DUALFREQ1",ROM0
-ELSE
-SECTION	"SoundSystem_SSFP_MUSIC_FX1_DUALFREQ1",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
-ENDC
-
-SSFP_MUSIC_FX1_DUALFREQ1:
-	ld	hl,wChannelMusicFXParam+0*2
-	ld	a,[hl+]
-	ldh	[rAUD1LOW],a
-	ld	a,[hl]
-	ldh	[rAUD1HIGH],a
-
-	; store the fx id
-	ld	a,MUSIC_FX_DUALFREQ2
-	ld	[wChannelMusicEffects+0],a
-	jp	SSFP_MusicFX_Done1
-ENDC
-
-; --------------------------------------------------------------------------------------------------------------------------
-IF DEF(MUSIC_FX_DUALFREQ2)
-IF (SOUNDSYSTEM_CODE_BANK == 0)
-SECTION	"SoundSystem_SSFP_MUSIC_FX1_DUALFREQ2",ROM0
-ELSE
-SECTION	"SoundSystem_SSFP_MUSIC_FX1_DUALFREQ2",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
-ENDC
-
-SSFP_MUSIC_FX1_DUALFREQ2:
-	ld	hl,wChannelFreqs+0*2
-	ld	a,[hl+]
-	ldh	[rAUD1LOW],a
-	ld	a,[hl]
-	ldh	[rAUD1HIGH],a
-
-	; store the fx id
-	ld	a,MUSIC_FX_DUALFREQ1
-	ld	[wChannelMusicEffects+0],a
-	jp	SSFP_MusicFX_Done1
-ENDC
-
-; --------------------------------------------------------------------------------------------------------------------------
 IF (SOUNDSYSTEM_CODE_BANK == 0)
 SECTION	"SoundSystem_SSFP_MUSIC_FX1_TF1",ROM0
 ELSE
@@ -1647,48 +1599,6 @@ SSFP_MUSIC_FX2_VIB2:
 	jp	SSFP_MusicFX_Done2
 
 ; --------------------------------------------------------------------------------------------------------------------------
-IF DEF(MUSIC_FX_DUALFREQ1)
-IF (SOUNDSYSTEM_CODE_BANK == 0)
-SECTION	"SoundSystem_SSFP_MUSIC_FX2_DUALFREQ1",ROM0
-ELSE
-SECTION	"SoundSystem_SSFP_MUSIC_FX2_DUALFREQ1",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
-ENDC
-
-SSFP_MUSIC_FX2_DUALFREQ1:
-	ld	hl,wChannelMusicFXParam+1*2
-	ld	a,[hl+]
-	ldh	[rAUD2LOW],a
-	ld	a,[hl]
-	ldh	[rAUD2HIGH],a
-
-	; store the fx id
-	ld	a,MUSIC_FX_DUALFREQ2
-	ld	[wChannelMusicEffects+1],a
-	jp	SSFP_MusicFX_Done2
-ENDC
-
-; --------------------------------------------------------------------------------------------------------------------------
-IF DEF(MUSIC_FX_DUALFREQ2)
-IF (SOUNDSYSTEM_CODE_BANK == 0)
-SECTION	"SoundSystem_SSFP_MUSIC_FX2_DUALFREQ2",ROM0
-ELSE
-SECTION	"SoundSystem_SSFP_MUSIC_FX2_DUALFREQ2",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
-ENDC
-
-SSFP_MUSIC_FX2_DUALFREQ2:
-	ld	hl,wChannelFreqs+1*2
-	ld	a,[hl+]
-	ldh	[rAUD2LOW],a
-	ld	a,[hl]
-	ldh	[rAUD2HIGH],a
-
-	; store the fx id
-	ld	a,MUSIC_FX_DUALFREQ1
-	ld	[wChannelMusicEffects+1],a
-	jp	SSFP_MusicFX_Done2
-ENDC
-
-; --------------------------------------------------------------------------------------------------------------------------
 IF (SOUNDSYSTEM_CODE_BANK == 0)
 SECTION	"SoundSystem_SSFP_MUSIC_FX2_TF1",ROM0
 ELSE
@@ -1897,48 +1807,6 @@ SSFP_MUSIC_FX3_VIB2:
 	ld	a,MUSIC_FX_VIB1
 	ld	[wChannelMusicEffects+2],a
 	jp	SSFP_MusicFX_Done3
-
-; --------------------------------------------------------------------------------------------------------------------------
-IF DEF(MUSIC_FX_DUALFREQ1)
-IF (SOUNDSYSTEM_CODE_BANK == 0)
-SECTION	"SoundSystem_SSFP_MUSIC_FX3_DUALFREQ1",ROM0
-ELSE
-SECTION	"SoundSystem_SSFP_MUSIC_FX3_DUALFREQ1",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
-ENDC
-
-SSFP_MUSIC_FX3_DUALFREQ1:
-	ld	hl,wChannelMusicFXParam+2*2
-	ld	a,[hl+]
-	ldh	[rAUD3LOW],a
-	ld	a,[hl]
-	ldh	[rAUD3HIGH],a
-
-	; store the fx id
-	ld	a,MUSIC_FX_DUALFREQ2
-	ld	[wChannelMusicEffects+2],a
-	jp	SSFP_MusicFX_Done3
-ENDC
-
-; --------------------------------------------------------------------------------------------------------------------------
-IF DEF(MUSIC_FX_DUALFREQ2)
-IF (SOUNDSYSTEM_CODE_BANK == 0)
-SECTION	"SoundSystem_SSFP_MUSIC_FX3_DUALFREQ2",ROM0
-ELSE
-SECTION	"SoundSystem_SSFP_MUSIC_FX3_DUALFREQ2",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
-ENDC
-
-SSFP_MUSIC_FX3_DUALFREQ2:
-	ld	hl,wChannelFreqs+2*2
-	ld	a,[hl+]
-	ldh	[rAUD3LOW],a
-	ld	a,[hl]
-	ldh	[rAUD3HIGH],a
-
-	; store the fx id
-	ld	a,MUSIC_FX_DUALFREQ1
-	ld	[wChannelMusicEffects+2],a
-	jp	SSFP_MusicFX_Done3
-ENDC
 
 ; --------------------------------------------------------------------------------------------------------------------------
 IF (SOUNDSYSTEM_CODE_BANK == 0)
@@ -2351,24 +2219,6 @@ SSFP_MUSIC_CMD_SETVOLUME:
 	jp	SSFP_MusicUpdate
 
 ; --------------------------------------------------------------------------------------------------------------------------
-IF DEF(MUSIC_CMD_SETPANNING)
-IF (SOUNDSYSTEM_CODE_BANK == 0)
-SECTION	"SoundSystem_SSFP_MUSIC_CMD_SETPANNING",ROM0
-ELSE
-SECTION	"SoundSystem_SSFP_MUSIC_CMD_SETPANNING",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
-ENDC
-
-SSFP_MUSIC_CMD_SETPANNING:
-	ld	a,[de]
-	inc	de
-	ld	hl,wSoundFXLock
-	and	[hl]
-	cpl
-	ldh	[rAUDTERM],a
-	jp	SSFP_MusicUpdate
-ENDC
-
-; --------------------------------------------------------------------------------------------------------------------------
 IF (SOUNDSYSTEM_CODE_BANK == 0)
 SECTION	"SoundSystem_SSFP_MUSIC_CMD_VIBRATO_ON",ROM0
 ELSE
@@ -2404,48 +2254,6 @@ SSFP_MUSIC_CMD_VIBRATO_ON:
 	jp	SSFP_MusicUpdate
 
 ; --------------------------------------------------------------------------------------------------------------------------
-IF DEF(MUSIC_CMD_DUALNOTE_ON)
-IF (SOUNDSYSTEM_CODE_BANK == 0)
-SECTION	"SoundSystem_SSFP_MUSIC_CMD_DUALNOTE_ON",ROM0
-ELSE
-SECTION	"SoundSystem_SSFP_MUSIC_CMD_DUALNOTE_ON",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
-ENDC
-
-SSFP_MUSIC_CMD_DUALNOTE_ON:
-	ld	a,[de]
-	inc	de
-	; note
-	add	a
-	ld	l,a
-	ld	h,HIGH(FrequencyTable)
-	ASSERT	LOW(FrequencyTable) == 0
-
-	ld	b,HIGH(wChannelMusicFXParam)
-	ld	a,[de]
-	and	$03
-	add	a
-	add	LOW(wChannelMusicFXParam)
-	ld	c,a
-	ld	a,[hl+]
-	ld	[bc],a
-	inc	c
-	ld	a,[hl]
-	ld	[bc],a	; store note freq
-
-	ld	a,[de]
-	inc	de
-
-	ld	c,a
-	and	3
-	add	LOW(wChannelMusicEffects)
-	ld	h,HIGH(wChannelMusicEffects)
-	ld	l,a
-	ld	[hl],MUSIC_FX_DUALFREQ1
-
-	jp	SSFP_MusicUpdate
-ENDC
-
-; --------------------------------------------------------------------------------------------------------------------------
 IF (SOUNDSYSTEM_CODE_BANK == 0)
 SECTION	"SoundSystem_SSFP_MUSIC_CMD_EFFECT_OFF",ROM0
 ELSE
@@ -2460,21 +2268,6 @@ SSFP_MUSIC_CMD_EFFECT_OFF:
 	ld	l,a
 	ld	[hl],MUSIC_FX_NONE
 	jp	SSFP_MusicUpdate
-
-; --------------------------------------------------------------------------------------------------------------------------
-IF DEF(MUSIC_CMD_SETMASTERVOLUME)
-IF (SOUNDSYSTEM_CODE_BANK == 0)
-SECTION	"SoundSystem_SSFP_MUSIC_CMD_SETMASTERVOLUME",ROM0
-ELSE
-SECTION	"SoundSystem_SSFP_MUSIC_CMD_SETMASTERVOLUME",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
-ENDC
-
-SSFP_MUSIC_CMD_SETMASTERVOLUME:
-	ld	a,[de]
-	inc	de
-	ldh	[rAUDVOL],a
-	jp	SSFP_MusicUpdate
-ENDC
 
 ; --------------------------------------------------------------------------------------------------------------------------
 IF (SOUNDSYSTEM_CODE_BANK == 0)
@@ -2533,55 +2326,6 @@ SSFP_MUSIC_CMD_ENDOFPATTERN:
 	ld	a,1
 	ld	[wMusicNextFrame],a
 	jp	SSFP_MusicUpdateFrameEnd
-
-; --------------------------------------------------------------------------------------------------------------------------
-IF DEF(MUSIC_CMD_LOOPPATTERN)
-IF (SOUNDSYSTEM_CODE_BANK == 0)
-SECTION	"SoundSystem_SSFP_MUSIC_CMD_LOOPPATTERN",ROM0
-ELSE
-SECTION	"SoundSystem_SSFP_MUSIC_CMD_LOOPPATTERN",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
-ENDC
-
-SSFP_MUSIC_CMD_LOOPPATTERN:
-	ld	a,[wMusicPatternLoopCounter]
-	or	a
-	jr	nz,.alreadylooping
-	; loop
-	ld	a,[de]
-	ld	l,a
-	inc	de
-	ld	a,[de]
-	ld	h,a
-	add	hl,de
-	inc	de
-	ld	a,[de]
-	ld	e,l
-	ld	d,h
-	ld	[wMusicPatternLoopCounter],a
-	jp	SSFP_MusicUpdate
-
-.alreadylooping:
-	dec	a
-	ld	[wMusicPatternLoopCounter],a
-	jr	z,.donelooping
-	; loop
-	ld	a,[de]
-	ld	l,a
-	inc	de
-	ld	a,[de]
-	ld	h,a
-	add	hl,de
-	ld	e,l
-	ld	d,h
-	jp	SSFP_MusicUpdate
-
-.donelooping:
-	; skip
-	inc	de
-	inc	de
-	inc	de
-	jp	SSFP_MusicUpdate
-ENDC
 
 ; --------------------------------------------------------------------------------------------------------------------------
 IF (SOUNDSYSTEM_CODE_BANK == 0)
@@ -3821,12 +3565,6 @@ SSFP_MusicFX_JumpTable1:
 	DW	$0000	; dummy
 	DW	SSFP_MUSIC_FX1_VIB1
 	DW	SSFP_MUSIC_FX1_VIB2
-	IF DEF(MUSIC_FX_DUALFREQ1)
-	DW	SSFP_MUSIC_FX1_DUALFREQ1
-	ENDC
-	IF DEF(MUSIC_FX_DUALFREQ2)
-	DW	SSFP_MUSIC_FX1_DUALFREQ2
-	ENDC
 	DW	SSFP_MUSIC_FX1_TF1
 	DW	SSFP_MUSIC_FX1_TF2
 	DW	SSFP_MUSIC_FX1_TF3
@@ -3844,12 +3582,6 @@ SSFP_MusicFX_JumpTable2:
 	DW	$0000	; dummy
 	DW	SSFP_MUSIC_FX2_VIB1
 	DW	SSFP_MUSIC_FX2_VIB2
-	IF DEF(MUSIC_FX_DUALFREQ1)
-	DW	SSFP_MUSIC_FX2_DUALFREQ1
-	ENDC
-	IF DEF(MUSIC_FX_DUALFREQ2)
-	DW	SSFP_MUSIC_FX2_DUALFREQ2
-	ENDC
 	DW	SSFP_MUSIC_FX2_TF1
 	DW	SSFP_MUSIC_FX2_TF2
 	DW	SSFP_MUSIC_FX2_TF3
@@ -3867,12 +3599,6 @@ SSFP_MusicFX_JumpTable3:
 	DW	$0000	; dummy
 	DW	SSFP_MUSIC_FX3_VIB1
 	DW	SSFP_MUSIC_FX3_VIB2
-	IF DEF(MUSIC_FX_DUALFREQ1)
-	DW	SSFP_MUSIC_FX3_DUALFREQ1
-	ENDC
-	IF DEF(MUSIC_FX_DUALFREQ2)
-	DW	SSFP_MUSIC_FX3_DUALFREQ2
-	ENDC
 	DW	SSFP_MUSIC_FX3_TF1
 	DW	SSFP_MUSIC_FX3_TF2
 	DW	SSFP_MUSIC_FX3_TF3
@@ -3891,22 +3617,10 @@ SSFP_Music_JumpTable:
 	DW	SSFP_MUSIC_CMD_PLAYINSTNOTE
 	DW	SSFP_MUSIC_CMD_PLAYINST
 	DW	SSFP_MUSIC_CMD_SETVOLUME
-	IF DEF(MUSIC_CMD_SETPANNING)
-	DW	SSFP_MUSIC_CMD_SETPANNING
-	ENDC
 	DW	SSFP_MUSIC_CMD_VIBRATO_ON
-	IF DEF(MUSIC_CMD_DUALNOTE_ON)
-	DW	SSFP_MUSIC_CMD_DUALNOTE_ON
-	ENDC
 	DW	SSFP_MUSIC_CMD_EFFECT_OFF
-	IF DEF(MUSIC_CMD_SETMASTERVOLUME)
-	DW	SSFP_MUSIC_CMD_SETMASTERVOLUME
-	ENDC
 	DW	SSFP_MUSIC_CMD_SYNCFLAG
 	DW	SSFP_MUSIC_CMD_ENDOFPATTERN
-	IF DEF(MUSIC_CMD_LOOPPATTERN)
-	DW	SSFP_MUSIC_CMD_LOOPPATTERN
-	ENDC
 	DW	SSFP_MUSIC_CMD_GOTOORDER
 	DW	SSFP_MUSIC_CMD_ENDOFSONG
 	DW	SSFP_MUSIC_CMD_SETSPEED
