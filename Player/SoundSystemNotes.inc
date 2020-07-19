@@ -4,7 +4,7 @@ SOUNDSYSTEMNOTES_INC	SET	1
 ;===============================
 ; Usage
 ;===============================
-; SoundSystem supports 5 full octaves worth of note frequencies. The GameBoy
+; SoundSystem supports 6 full octaves worth of note frequencies. The GameBoy
 ; can actually output more than that, but supporting those would create
 ; incomplete octaves, so it's generally not useful.
 ;
