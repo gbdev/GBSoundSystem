@@ -877,7 +877,7 @@ SSFP_MusicFX_Done3:	; some handlers return here
 	ld	[rROMB1],a
 	ENDC
 
-	; put the music command	handler in de
+	; put the music command handler in de
 	ld	hl,wMusicCommandPtr
 	ld	a,[hl+]
 	ld	e,a
@@ -1403,9 +1403,9 @@ SSFP_MUSIC_FX1_TF1:
 	ld	c,a
 	ld	a,[wChannelMusicFXParam+0*2+0]
 	add	c
-	cp	6*12
+	cp	NUM_NOTES
 	jr	c,.noteok
-	ld	a,6*12-1
+	ld	a,NUM_NOTES-1
 .noteok:
 	add	a
 	ld	l,a
@@ -1433,9 +1433,9 @@ SSFP_MUSIC_FX1_TF2:
 	ld	c,a
 	ld	a,[wChannelMusicFXParam+0*2+1]
 	add	c
-	cp	6*12
+	cp	NUM_NOTES
 	jr	c,.noteok
-	ld	a,6*12-1
+	ld	a,NUM_NOTES-1
 .noteok:
 	add	a
 	ld	l,a
@@ -1527,7 +1527,7 @@ SSFP_MUSIC_FX1_PITCHDOWN:
 	ld	[hl+],a
 	ldh	[rAUD1LOW],a
 	ld	a,[hl]
-	sbc	$00
+	sbc	0
 	and	$07
 	ld	[hl],a
 	ldh	[rAUD1HIGH],a
@@ -1613,9 +1613,9 @@ SSFP_MUSIC_FX2_TF1:
 	ld	c,a
 	ld	a,[wChannelMusicFXParam+1*2+0]
 	add	c
-	cp	6*12
+	cp	NUM_NOTES
 	jr	c,.noteok
-	ld	a,6*12-1
+	ld	a,NUM_NOTES-1
 .noteok:
 	add	a
 	ld	l,a
@@ -1643,9 +1643,9 @@ SSFP_MUSIC_FX2_TF2:
 	ld	c,a
 	ld	a,[wChannelMusicFXParam+1*2+1]
 	add	c
-	cp	6*12
+	cp	NUM_NOTES
 	jr	c,.noteok
-	ld	a,6*12-1
+	ld	a,NUM_NOTES-1
 .noteok:
 	add	a
 	ld	l,a
@@ -1737,7 +1737,7 @@ SSFP_MUSIC_FX2_PITCHDOWN:
 	ld	[hl+],a
 	ldh	[rAUD2LOW],a
 	ld	a,[hl]
-	sbc	$00
+	sbc	0
 	and	$07
 	ld	[hl],a
 	ldh	[rAUD2HIGH],a
@@ -1823,9 +1823,9 @@ SSFP_MUSIC_FX3_TF1:
 	ld	c,a
 	ld	a,[wChannelMusicFXParam+2*2+0]
 	add	c
-	cp	6*12
+	cp	NUM_NOTES
 	jr	c,.noteok
-	ld	a,6*12-1
+	ld	a,NUM_NOTES-1
 .noteok:
 	add	a
 	ld	l,a
@@ -1853,9 +1853,9 @@ SSFP_MUSIC_FX3_TF2:
 	ld	c,a
 	ld	a,[wChannelMusicFXParam+2*2+1]
 	add	c
-	cp	6*12
+	cp	NUM_NOTES
 	jr	c,.noteok
-	ld	a,6*12-1
+	ld	a,NUM_NOTES-1
 .noteok:
 	add	a
 	ld	l,a
@@ -1947,7 +1947,7 @@ SSFP_MUSIC_FX3_PITCHDOWN:
 	ld	[hl+],a
 	ldh	[rAUD3LOW],a
 	ld	a,[hl]
-	sbc	$00
+	sbc	0
 	and	$07
 	ld	[hl],a
 	ldh	[rAUD3HIGH],a
@@ -2229,7 +2229,7 @@ ENDC
 SSFP_MUSIC_CMD_VIBRATO_ON:
 	ld	a,[de]
 	ld	c,a
-	and	3
+	and	$03
 	add	LOW(wChannelMusicEffects)
 	ld	h,HIGH(wChannelMusicEffects)
 	ld	l,a
@@ -2246,7 +2246,7 @@ SSFP_MUSIC_CMD_VIBRATO_ON:
 	ld	[bc],a	; store max
 	inc	bc
 	ld	l,a
-	and	1
+	and	$01
 	srl	l
 	or	l
 	ld	[bc],a	; store max
@@ -2442,7 +2442,7 @@ ENDC
 
 SSFP_MUSIC_CMD_PITCHUP_ON:
 	ld	a,[de]
-	and	3
+	and	$03
 	add	LOW(wChannelMusicEffects)
 	ld	h,HIGH(wChannelMusicEffects)
 	ld	l,a
@@ -2451,7 +2451,7 @@ SSFP_MUSIC_CMD_PITCHUP_ON:
 
 SSFP_MUSIC_CMD_PITCHDOWN_ON:
 	ld	a,[de]
-	and	3
+	and	$03
 	add	LOW(wChannelMusicEffects)
 	ld	h,HIGH(wChannelMusicEffects)
 	ld	l,a
@@ -2475,7 +2475,7 @@ SSFP_MUSIC_CMD_PITCHUP_reuse:
 	ld	a,[de]
 	srl	a
 	srl	a
-	and	3
+	and	$03
 	inc	a
 	ld	[bc],a
 	inc	de
@@ -2513,7 +2513,7 @@ SSFP_MUSIC_CMD_TRIPLENOTE_ON:
 	inc	de
 
 	ld	c,a
-	and	3
+	and	$03
 	add	LOW(wChannelMusicEffects)
 	ld	h,HIGH(wChannelMusicEffects)
 	ld	l,a
@@ -2532,7 +2532,7 @@ SSFP_MUSIC_CMD_EXTRA:
 	ld	a,[de]
 	inc	de
 	ld	c,a
-	and	3
+	and	$03
 	jr	z,SSFP_MUSIC_CMD_EXTRA_chnl1
 	dec	a
 	jr	z,SSFP_MUSIC_CMD_EXTRA_chnl2
