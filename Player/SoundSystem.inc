@@ -251,9 +251,13 @@ SOUNDSYSTEM_INC	SET	1
 ; disabled by default, but access to that data is provided by setting
 ; SOUNDSYSTEM_ENABLE_VUM in SoundSystem.def to 1.
 ;
-; If enabled, the data is in a 4-byte (1 byte per channel) array named
-; 'wVUMeters':
-; [0] = channel 1, [1] = channel 2, [2] = channel 3, [3] = channel 4
+; If enabled, the data (value $0-$F) is in 4 1-byte variables, one per channel:
+;     'wVUMeter1' = channel 1
+;     'wVUMeter2' = channel 2
+;     'wVUMeter3' = channel 3
+;     'wVUMeter4' = channel 4
+;
+; They are contiguous in memory so you can access them as an array if needed.
 ;
 ; Notes:
 ; - CPU, code size, and RAM usage is slightly more if this is enabled.

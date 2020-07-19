@@ -297,9 +297,14 @@ wSoundFXNote:			DS	1	; sound fx's start note
 
 ; music/sfx shared variables
 wMusicSFXPanning:		DS	1
-wMusicSFXInstPause:		DS	4	; frames left before instrument/soundfx update
-wMusicSFXInstPtr:		DS	8	; pointers to playing instruments/soundfx
-; wMusicSFXInstBankX was split to allow better handling of large rom bank switching
+wMusicSFXInstPause1:		DS	1	; frames left before instrument/soundfx update for channel 1
+wMusicSFXInstPause2:		DS	1	; frames left before instrument/soundfx update for channel 2
+wMusicSFXInstPause3:		DS	1	; frames left before instrument/soundfx update for channel 3
+wMusicSFXInstPause4:		DS	1	; frames left before instrument/soundfx update for channel 4
+wMusicSFXInstPtr1:		DS	2	; pointer to playing instrument/soundfx for channel 1
+wMusicSFXInstPtr2:		DS	2	; pointer to playing instrument/soundfx for channel 2
+wMusicSFXInstPtr3:		DS	2	; pointer to playing instrument/soundfx for channel 3
+wMusicSFXInstPtr4:		DS	2	; pointer to playing instrument/soundfx for channel 4
 wMusicSFXInstBank1:		DS	sizeof_BANK_VAR	; bank of active instrument for channel 1
 wMusicSFXInstBank2:		DS	sizeof_BANK_VAR	; bank of active instrument for channel 2
 wMusicSFXInstBank3:		DS	sizeof_BANK_VAR	; bank of active instrument for channel 3
@@ -320,22 +325,46 @@ wMusicInstrumentBank:		DS	sizeof_BANK_VAR	; bank of instruments
 wMusicPatternLoopCounter:	DS	1	; pattern loop counter
 
 ; miscellaneous variables
-wChannelMusicFreqs:		DS	8	; GB frequencies of channels for music backup
-wChannelMusicNotes:		DS	8	; GB frequencies of channels for music backup
-wChannelFreqs:			DS	8	; GB frequencies of channels
-wChannelVols:			DS	4	; volumes of channels, byte[4:VOL,4:xxxx]
+wChannelMusicFreq1:		DS	2	; GB frequency of channel 1 for music backup
+wChannelMusicFreq2:		DS	2	; GB frequency of channel 2 for music backup
+wChannelMusicFreq3:		DS	2	; GB frequency of channel 3 for music backup
+wChannelMusicFreq4:		DS	2	; GB frequency of channel 4 for music backup
+wChannelMusicNote1:		DS	1	; note of channel 1 for music backup
+wChannelMusicNote2:		DS	1	; note of channel 2 for music backup
+wChannelMusicNote3:		DS	1	; note of channel 3 for music backup
+wChannelMusicNote4:		DS	1	; note of channel 4 for music backup
+wChannelFreq1:			DS	2	; GB frequency of channel 1
+wChannelFreq2:			DS	2	; GB frequency of channel 2
+wChannelFreq3:			DS	2	; GB frequency of channel 3
+wChannelFreq4:			DS	2	; GB frequency of channel 4
+wChannelVol1:			DS	1	; volumes of channel 1, byte[4:VOL,4:xxxx]
+wChannelVol2:			DS	1	; volumes of channel 2, byte[4:VOL,4:xxxx]
+wChannelVol3:			DS	1	; volumes of channel 3, byte[4:VOL,4:xxxx]
+wChannelVol4:			DS	1	; volumes of channel 4, byte[4:VOL,4:xxxx]
 
 wMusicSpeed:			DS	1	; speed
 
 ; effect variables
-wChannelMusicEffects:		DS	4	; active effect, 0 = none
-wChannelMusicFXParam:		DS	8	; parameters for effects (WORDs)
-wChannelMusicFXParam2:		DS	8	; parameters for effects (WORDs)
+wChannelMusicEffect1:		DS	1	; active effect for channel 1, 0 = none
+wChannelMusicEffect2:		DS	1	; active effect for channel 2, 0 = none
+wChannelMusicEffect3:		DS	1	; active effect for channel 3, 0 = none
+wChannelMusicEffect4:		DS	1	; active effect for channel 4, 0 = none
+wChannelMusicFXParamA1:		DS	2	; effect parameters for channel 1
+wChannelMusicFXParamA2:		DS	2	; effect parameters for channel 2
+wChannelMusicFXParamA3:		DS	2	; effect parameters for channel 3
+wChannelMusicFXParamA4:		DS	2	; effect parameters for channel 4
+wChannelMusicFXParamB1:		DS	2	; effect parameters for channel 1
+wChannelMusicFXParamB2:		DS	2	; effect parameters for channel 2
+wChannelMusicFXParamB3:		DS	2	; effect parameters for channel 3
+wChannelMusicFXParamB4:		DS	2	; effect parameters for channel 4
 
 wTemp:				DS	2	; temporary storage for player calcs
 
 IF (SOUNDSYSTEM_ENABLE_VUM)
-wVUMeters::			DS	4	; vu meter data for the channels
+wVUMeter1::			DS	1	; vu meter data for channel 1
+wVUMeter2::			DS	1	; vu meter data for channel 2
+wVUMeter3::			DS	1	; vu meter data for channel 3
+wVUMeter4::			DS	1	; vu meter data for channel 4
 ENDC
 
 
@@ -367,7 +396,7 @@ SoundSystem_Init::
 	ENDC
 
 	; set all channel samples to 'stop'
-	ld	hl,wMusicSFXInstPtr
+	ld	hl,wMusicSFXInstPtr1
 	ld	e,4
 .instptrloop:
 	ld	a,LOW(Music_InstrumentEnd)
@@ -379,7 +408,7 @@ SoundSystem_Init::
 
 	; set all channel volumes to 8
 	ld	a,$80
-	ld	hl,wChannelVols
+	ld	hl,wChannelVol1
 	ld	[hl+],a
 	ld	[hl+],a
 	ld	[hl+],a
@@ -398,14 +427,14 @@ SoundSystem_Init::
 
 	; clear all channel music effects
 	xor	a
-	ld	hl,wChannelMusicEffects
+	ld	hl,wChannelMusicEffect1
 	ld	[hl+],a
 	ld	[hl+],a
 	ld	[hl+],a
 	ld	[hl],a
 	ld	[wMusicSFXInstChnl3Lock],a
 	; clear all sfx pause timers
-	ld	hl,wMusicSFXInstPause
+	ld	hl,wMusicSFXInstPause1
 	ld	[hl+],a
 	ld	[hl+],a
 	ld	[hl+],a
@@ -520,9 +549,9 @@ SoundSystem_Process::
 	or	c
 	jr	z,.nosfxchnl1
 	ld	a,c
-	ld	[wMusicSFXInstPtr],a
+	ld	[wMusicSFXInstPtr1],a
 	ld	a,b
-	ld	[wMusicSFXInstPtr+1],a
+	ld	[wMusicSFXInstPtr1+1],a
 
 	; update the rom bank
 	ld	a,[wSoundFXBank]
@@ -533,15 +562,15 @@ SoundSystem_Process::
 	ENDC
 
 	ld	a,[wTemp]
-	ld	[wChannelFreqs+0],a
+	ld	[wChannelFreq1],a
 	ld	a,[wTemp+1]
-	ld	[wChannelFreqs+1],a
+	ld	[wChannelFreq1+1],a
 
 	ld	a,d
 	and	~(SFXLOCKF_1_LEFT|SFXLOCKF_1_RIGHT)
 	ld	d,a
 	ld	a,1	; set counter to immediate start
-	ld	[wMusicSFXInstPause],a
+	ld	[wMusicSFXInstPause1],a
 .nosfxchnl1:
 
 	; load channel 2
@@ -552,9 +581,9 @@ SoundSystem_Process::
 	or	c
 	jr	z,.nosfxchnl2
 	ld	a,c
-	ld	[wMusicSFXInstPtr+2],a
+	ld	[wMusicSFXInstPtr2],a
 	ld	a,b
-	ld	[wMusicSFXInstPtr+3],a
+	ld	[wMusicSFXInstPtr2+1],a
 
 	; update the rom bank
 	ld	a,[wSoundFXBank]
@@ -565,15 +594,15 @@ SoundSystem_Process::
 	ENDC
 
 	ld	a,[wTemp]
-	ld	[wChannelFreqs+2],a
+	ld	[wChannelFreq2],a
 	ld	a,[wTemp+1]
-	ld	[wChannelFreqs+3],a
+	ld	[wChannelFreq2+1],a
 
 	ld	a,d
 	and	~(SFXLOCKF_2_LEFT|SFXLOCKF_2_RIGHT)
 	ld	d,a
 	ld	a,1	; set counter to immediate start
-	ld	[wMusicSFXInstPause+1],a
+	ld	[wMusicSFXInstPause2],a
 .nosfxchnl2:
 
 	; load channel 3
@@ -587,9 +616,9 @@ SoundSystem_Process::
 	or	a
 	jr	nz,.nosfxchnl3
 	ld	a,c
-	ld	[wMusicSFXInstPtr+4],a
+	ld	[wMusicSFXInstPtr3],a
 	ld	a,b
-	ld	[wMusicSFXInstPtr+5],a
+	ld	[wMusicSFXInstPtr3+1],a
 
 	; update the rom bank
 	ld	a,[wSoundFXBank]
@@ -600,15 +629,15 @@ SoundSystem_Process::
 	ENDC
 
 	ld	a,[wTemp]
-	ld	[wChannelFreqs+4],a
+	ld	[wChannelFreq3],a
 	ld	a,[wTemp+1]
-	ld	[wChannelFreqs+5],a
+	ld	[wChannelFreq3+1],a
 
 	ld	a,d
 	and	~(SFXLOCKF_3_LEFT|SFXLOCKF_3_RIGHT)
 	ld	d,a
 	ld	a,1	; set counter to immediate start
-	ld	[wMusicSFXInstPause+2],a
+	ld	[wMusicSFXInstPause3],a
 .nosfxchnl3:
 
 	; load channel 4
@@ -619,9 +648,9 @@ SoundSystem_Process::
 	or	c
 	jr	z,.nosfxchnl4
 	ld	a,c
-	ld	[wMusicSFXInstPtr+6],a
+	ld	[wMusicSFXInstPtr4],a
 	ld	a,b
-	ld	[wMusicSFXInstPtr+7],a
+	ld	[wMusicSFXInstPtr4+1],a
 
 	; update the rom bank
 	ld	a,[wSoundFXBank]
@@ -635,7 +664,7 @@ SoundSystem_Process::
 	and	(SFXLOCKF_4_LEFT|SFXLOCKF_4_RIGHT) ^ $FF	; same as ~(), but ~ here triggers a false warning
 	ld	d,a
 	ld	a,1	; set counter to immediate start
-	ld	[wMusicSFXInstPause+3],a
+	ld	[wMusicSFXInstPause4],a
 .nosfxchnl4:
 
 	pop	bc
@@ -659,7 +688,7 @@ SoundSystem_Process::
 	; instruments and SFX process
 	;-------------------------------
 	; channel 1
-	ld	hl,wMusicSFXInstPause
+	ld	hl,wMusicSFXInstPause1
 	ld	a,[hl]
 	or	a			; is channel 1 active?
 	jr	z,SSFP_Inst1UpdateDone	; no, skip
@@ -675,14 +704,14 @@ SoundSystem_Process::
 	ld	[rROMB1],a
 	ENDC
 
-	ld	hl,wMusicSFXInstPtr
+	ld	hl,wMusicSFXInstPtr1
 	ld	a,[hl+]
 	ld	d,[hl]
 	ld	e,a
 	jp	SSFP_Inst1Update
 SSFP_Inst1UpdateFrameEnd:
 	; save back
-	ld	hl,wMusicSFXInstPtr
+	ld	hl,wMusicSFXInstPtr1
 	ld	a,e
 	ld	[hl+],a
 	ld	[hl],d
@@ -690,7 +719,7 @@ SSFP_Inst1UpdateDone:
 
 	;-------------------------------
 	; channel 2
-	ld	hl,wMusicSFXInstPause+1
+	ld	hl,wMusicSFXInstPause2
 	ld	a,[hl]
 	or	a			; is channel 2 active?
 	jr	z,SSFP_Inst2UpdateDone	; no, skip
@@ -706,14 +735,14 @@ SSFP_Inst1UpdateDone:
 	ld	[rROMB1],a
 	ENDC
 
-	ld	hl,wMusicSFXInstPtr+2
+	ld	hl,wMusicSFXInstPtr2
 	ld	a,[hl+]
 	ld	d,[hl]
 	ld	e,a
 	jp	SSFP_Inst2Update
 SSFP_Inst2UpdateFrameEnd:
 	; save back
-	ld	hl,wMusicSFXInstPtr+2
+	ld	hl,wMusicSFXInstPtr2
 	ld	a,e
 	ld	[hl+],a
 	ld	[hl],d
@@ -721,7 +750,7 @@ SSFP_Inst2UpdateDone:
 
 	;-------------------------------
 	; channel 3
-	ld	hl,wMusicSFXInstPause+2
+	ld	hl,wMusicSFXInstPause3
 	ld	a,[hl]
 	or	a			; is channel 3 active?
 	jr	z,SSFP_Inst3UpdateDone	; no, skip
@@ -737,14 +766,14 @@ SSFP_Inst2UpdateDone:
 	ld	[rROMB1],a
 	ENDC
 
-	ld	hl,wMusicSFXInstPtr+4
+	ld	hl,wMusicSFXInstPtr3
 	ld	a,[hl+]
 	ld	d,[hl]
 	ld	e,a
 	jp	SSFP_Inst3Update
 SSFP_Inst3UpdateFrameEnd:
 	; save back
-	ld	hl,wMusicSFXInstPtr+4
+	ld	hl,wMusicSFXInstPtr3
 	ld	a,e
 	ld	[hl+],a
 	ld	[hl],d
@@ -752,7 +781,7 @@ SSFP_Inst3UpdateDone:
 
 	;-------------------------------
 	; channel 4
-	ld	hl,wMusicSFXInstPause+3
+	ld	hl,wMusicSFXInstPause4
 	ld	a,[hl]
 	or	a			; is channel 4 active?
 	jr	z,SSFP_Inst4UpdateDone	; no, skip
@@ -768,14 +797,14 @@ SSFP_Inst3UpdateDone:
 	ld	[rROMB1],a
 	ENDC
 
-	ld	hl,wMusicSFXInstPtr+6
+	ld	hl,wMusicSFXInstPtr4
 	ld	a,[hl+]
 	ld	d,[hl]
 	ld	e,a
 	jp	SSFP_Inst4Update
 SSFP_Inst4UpdateFrameEnd:
 	; save back
-	ld	hl,wMusicSFXInstPtr+6
+	ld	hl,wMusicSFXInstPtr4
 	ld	a,e
 	ld	[hl+],a
 	ld	[hl],d
@@ -791,18 +820,18 @@ SSFP_Inst4UpdateDone:
 	; update music effects
 	;-------------------------------
 	; channel 1
-	ld	a,[wChannelMusicEffects]
+	ld	a,[wChannelMusicEffect1]
 	or	a			; is channel 1 playing music fx?
 	jr	z,SSFP_MusicFX_Done1	; no, skip to the next channel
 
 	; check if sound effect active (no music fx then)
-	ld	b,a			; preserve wChannelMusicEffects[0]
+	ld	b,a
 	ld	a,[wSoundFXLock]
 	bit	SFXLOCKB_CHANNEL1,a	; is channel 1 playing fx?
 	jr	z,SSFP_MusicFX_Done1	; no, skip to the next channel
 
 	; call the fx handler
-	ld	a,b			; restore wChannelMusicEffects[0]
+	ld	a,b
 	ld	hl,SSFP_MusicFX_JumpTable1
 	add	a
 	add	l
@@ -815,18 +844,18 @@ SSFP_MusicFX_Done1:	; some handlers return here
 
 	;-------------------------------
 	; channel 2
-	ld	a,[wChannelMusicEffects+1]
+	ld	a,[wChannelMusicEffect2]
 	or	a			; is channel 2 playing music fx?
 	jr	z,SSFP_MusicFX_Done2	; no, skip to the next channel
 
 	; check if sound effect active (no music fx then)
-	ld	b,a			; preserve wChannelMusicEffects[1]
+	ld	b,a
 	ld	a,[wSoundFXLock]
 	bit	SFXLOCKB_CHANNEL2,a	; is channel 2 playing fx?
 	jr	z,SSFP_MusicFX_Done2	; no, skip to the next channel
 
 	; call the fx handler
-	ld	a,b			; restore wChannelMusicEffects[1]
+	ld	a,b
 	ld	hl,SSFP_MusicFX_JumpTable2
 	add	a
 	add	l
@@ -839,18 +868,18 @@ SSFP_MusicFX_Done2:	; some handlers return here
 
 	;-------------------------------
 	; channel 3
-	ld	a,[wChannelMusicEffects+2]
+	ld	a,[wChannelMusicEffect3]
 	or	a			; is channel 3 playing music fx?
 	jr	z,SSFP_MusicFX_Done3	; no, skip to the next channel
 
 	; check if sound effect active (no music fx then)
-	ld	b,a			; preserve wChannelMusicEffects[2]
+	ld	b,a
 	ld	a,[wSoundFXLock]
 	bit	SFXLOCKB_CHANNEL3,a	; is channel 3 playing fx?
 	jr	z,SSFP_MusicFX_Done3	; no, skip to the next channel
 
 	; call the fx handler
-	ld	a,b			; restore wChannelMusicEffects[2]
+	ld	a,b
 	ld	hl,SSFP_MusicFX_JumpTable3
 	add	a
 	add	l
@@ -977,7 +1006,7 @@ Music_Play::
 	ld	[wMusicSyncFlag],a
 
 	; clear effects
-	ld	hl,wChannelMusicEffects
+	ld	hl,wChannelMusicEffect1
 	ld	[hl+],a
 	ld	[hl+],a
 	ld	[hl+],a
@@ -1047,7 +1076,7 @@ Music_Pause::
 	ldh	[rAUD1HIGH],a
 
 	; set the stop command
-	ld	hl,wMusicSFXInstPtr
+	ld	hl,wMusicSFXInstPtr1
 	ld	[hl],LOW(Music_InstrumentEnd)
 	inc	l
 	ld	[hl],HIGH(Music_InstrumentEnd)
@@ -1064,7 +1093,7 @@ Music_Pause::
 	ldh	[rAUD2HIGH],a
 
 	; set the stop command
-	ld	hl,wMusicSFXInstPtr+2
+	ld	hl,wMusicSFXInstPtr2
 	ld	[hl],LOW(Music_InstrumentEnd)
 	inc	l
 	ld	[hl],HIGH(Music_InstrumentEnd)
@@ -1079,7 +1108,7 @@ Music_Pause::
 	ldh	[rAUD3ENA],a
 
 	; set the stop command
-	ld	hl,wMusicSFXInstPtr+4
+	ld	hl,wMusicSFXInstPtr3
 	ld	[hl],LOW(Music_InstrumentEnd)
 	inc	l
 	ld	[hl],HIGH(Music_InstrumentEnd)
@@ -1096,7 +1125,7 @@ Music_Pause::
 	ldh	[rAUD4GO],a
 
 	; set the stop command
-	ld	hl,wMusicSFXInstPtr+6
+	ld	hl,wMusicSFXInstPtr4
 	ld	[hl],LOW(Music_InstrumentEnd)
 	inc	l
 	ld	[hl],HIGH(Music_InstrumentEnd)
@@ -1219,7 +1248,7 @@ SFX_Stop::
 	ld	[rAUD1ENV],a
 	ld	a,c
 	ld	[rAUD1HIGH],a
-	ld	hl,wMusicSFXInstPtr
+	ld	hl,wMusicSFXInstPtr1
 	ld	[hl],LOW(Music_InstrumentEnd)
 	inc	l
 	ld	[hl],HIGH(Music_InstrumentEnd)
@@ -1232,7 +1261,7 @@ SFX_Stop::
 	ld	[rAUD2ENV],a
 	ld	a,c
 	ld	[rAUD2HIGH],a
-	ld	hl,wMusicSFXInstPtr+2
+	ld	hl,wMusicSFXInstPtr2
 	ld	[hl],LOW(Music_InstrumentEnd)
 	inc	l
 	ld	[hl],HIGH(Music_InstrumentEnd)
@@ -1245,7 +1274,7 @@ SFX_Stop::
 	or	a
 	jr	nz,.nosfx3
 	ld	[rAUD3ENA],a	; a = 0 here
-	ld	hl,wMusicSFXInstPtr+4
+	ld	hl,wMusicSFXInstPtr3
 	ld	[hl],LOW(Music_InstrumentEnd)
 	inc	l
 	ld	[hl],HIGH(Music_InstrumentEnd)
@@ -1258,7 +1287,7 @@ SFX_Stop::
 	ld	[rAUD4ENV],a
 	ld	a,c
 	ld	[rAUD4GO],a
-	ld	hl,wMusicSFXInstPtr+6
+	ld	hl,wMusicSFXInstPtr4
 	ld	[hl],LOW(Music_InstrumentEnd)
 	inc	l
 	ld	[hl],HIGH(Music_InstrumentEnd)
@@ -1288,7 +1317,7 @@ SFX_LockChannel3::
 	ld	a,[wSoundFXLock]
 	and	~(SFXLOCKF_3_LEFT|SFXLOCKF_3_RIGHT)
 	ld	[wSoundFXLock],a
-	ld	hl,wMusicSFXInstPtr
+	ld	hl,wMusicSFXInstPtr1
 	ld	a,LOW(Music_InstrumentEnd)
 	ld	[hl+],a
 	ld	a,HIGH(Music_InstrumentEnd)
@@ -1335,7 +1364,7 @@ SECTION	"SoundSystem_SSFP_MUSIC_FX1_VIB1",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
 ENDC
 
 SSFP_MUSIC_FX1_VIB1:
-	ld	hl,wChannelFreqs+0*2
+	ld	hl,wChannelFreq1
 	ld	a,[hl]
 	add	1	; can't use inc a here because of the adc
 	ld	[hl+],a
@@ -1346,7 +1375,7 @@ SSFP_MUSIC_FX1_VIB1:
 	ld	[hl],a
 	ldh	[rAUD1HIGH],a
 
-	ld	hl,wChannelMusicFXParam+0*2+1
+	ld	hl,wChannelMusicFXParamA1+1
 	dec	[hl]
 	dec	hl
 	jp	nz,SSFP_MusicFX_Done1
@@ -1355,7 +1384,7 @@ SSFP_MUSIC_FX1_VIB1:
 
 	; store the fx id
 	ld	a,MUSIC_FX_VIB2
-	ld	[wChannelMusicEffects+0],a
+	ld	[wChannelMusicEffect1],a
 	jp	SSFP_MusicFX_Done1
 
 ; --------------------------------------------------------------------------------------------------------------------------
@@ -1366,7 +1395,7 @@ SECTION	"SoundSystem_SSFP_MUSIC_FX1_VIB2",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
 ENDC
 
 SSFP_MUSIC_FX1_VIB2:
-	ld	hl,wChannelFreqs+0*2
+	ld	hl,wChannelFreq1
 	ld	a,[hl]
 	add	$FF	; can't use dec a here because of the adc
 	ld	[hl+],a
@@ -1377,7 +1406,7 @@ SSFP_MUSIC_FX1_VIB2:
 	ld	[hl],a
 	ldh	[rAUD1HIGH],a
 
-	ld	hl,wChannelMusicFXParam+0*2+1
+	ld	hl,wChannelMusicFXParamA1+1
 	dec	[hl]
 	dec	hl
 	jp	nz,SSFP_MusicFX_Done1
@@ -1386,7 +1415,7 @@ SSFP_MUSIC_FX1_VIB2:
 
 	; store the fx id
 	ld	a,MUSIC_FX_VIB1
-	ld	[wChannelMusicEffects+0],a
+	ld	[wChannelMusicEffect1],a
 	jp	SSFP_MusicFX_Done1
 
 ; --------------------------------------------------------------------------------------------------------------------------
@@ -1399,9 +1428,9 @@ ENDC
 SSFP_MUSIC_FX1_TF1:
 	ld	hl,FrequencyTable
 	ASSERT	LOW(FrequencyTable) == 0
-	ld	a,[wChannelMusicNotes+0]
+	ld	a,[wChannelMusicNote1]
 	ld	c,a
-	ld	a,[wChannelMusicFXParam+0*2+0]
+	ld	a,[wChannelMusicFXParamA1]
 	add	c
 	cp	NUM_NOTES
 	jr	c,.noteok
@@ -1416,7 +1445,7 @@ SSFP_MUSIC_FX1_TF1:
 
 	; store the fx id
 	ld	a,MUSIC_FX_TRIPLEFREQ2
-	ld	[wChannelMusicEffects+0],a
+	ld	[wChannelMusicEffect1],a
 	jp	SSFP_MusicFX_Done1
 
 ; --------------------------------------------------------------------------------------------------------------------------
@@ -1429,9 +1458,9 @@ ENDC
 SSFP_MUSIC_FX1_TF2:
 	ld	hl,FrequencyTable
 	ASSERT	LOW(FrequencyTable) == 0
-	ld	a,[wChannelMusicNotes+0]
+	ld	a,[wChannelMusicNote1]
 	ld	c,a
-	ld	a,[wChannelMusicFXParam+0*2+1]
+	ld	a,[wChannelMusicFXParamA1+1]
 	add	c
 	cp	NUM_NOTES
 	jr	c,.noteok
@@ -1446,7 +1475,7 @@ SSFP_MUSIC_FX1_TF2:
 
 	; store the fx id
 	ld	a,MUSIC_FX_TRIPLEFREQ3
-	ld	[wChannelMusicEffects+0],a
+	ld	[wChannelMusicEffect1],a
 	jp	SSFP_MusicFX_Done1
 
 ; --------------------------------------------------------------------------------------------------------------------------
@@ -1459,7 +1488,7 @@ ENDC
 SSFP_MUSIC_FX1_TF3:
 	ld	hl,FrequencyTable
 	ASSERT	LOW(FrequencyTable) == 0
-	ld	a,[wChannelMusicNotes+0]
+	ld	a,[wChannelMusicNote1]
 	add	a
 	ld	l,a
 	ld	a,[hl+]
@@ -1469,7 +1498,7 @@ SSFP_MUSIC_FX1_TF3:
 
 	; store the fx id
 	ld	a,MUSIC_FX_TRIPLEFREQ1
-	ld	[wChannelMusicEffects+0],a
+	ld	[wChannelMusicEffect1],a
 	jp	SSFP_MusicFX_Done1
 
 ; --------------------------------------------------------------------------------------------------------------------------
@@ -1480,7 +1509,7 @@ SECTION	"SoundSystem_SSFP_MUSIC_FX1_PITCHUP",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
 ENDC
 
 SSFP_MUSIC_FX1_PITCHUP:
-	ld	hl,wChannelMusicFXParam+0*2
+	ld	hl,wChannelMusicFXParamA1
 	ld	a,[hl]
 	dec	a
 	ld	[hl+],a
@@ -1488,9 +1517,9 @@ SSFP_MUSIC_FX1_PITCHUP:
 	ld	a,[hl-]
 	ld	[hl],a
 
-	ld	hl,wChannelMusicFXParam2+0*2
+	ld	hl,wChannelMusicFXParamB1
 	ld	b,[hl]
-	ld	hl,wChannelFreqs+0*2
+	ld	hl,wChannelFreq1
 	ld	a,[hl]
 	add	b
 	ld	[hl+],a
@@ -1511,7 +1540,7 @@ SECTION	"SoundSystem_SSFP_MUSIC_FX1_PITCHDOWN",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
 ENDC
 
 SSFP_MUSIC_FX1_PITCHDOWN:
-	ld	hl,wChannelMusicFXParam+0*2
+	ld	hl,wChannelMusicFXParamA1
 	ld	a,[hl]
 	dec	a
 	ld	[hl+],a
@@ -1519,9 +1548,9 @@ SSFP_MUSIC_FX1_PITCHDOWN:
 	ld	a,[hl-]
 	ld	[hl],a
 
-	ld	hl,wChannelMusicFXParam2+0*2
+	ld	hl,wChannelMusicFXParamB1
 	ld	b,[hl]
-	ld	hl,wChannelFreqs+0*2
+	ld	hl,wChannelFreq1
 	ld	a,[hl]
 	sub	b
 	ld	[hl+],a
@@ -1545,7 +1574,7 @@ SECTION	"SoundSystem_SSFP_MUSIC_FX2_VIB1",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
 ENDC
 
 SSFP_MUSIC_FX2_VIB1:
-	ld	hl,wChannelFreqs+1*2
+	ld	hl,wChannelFreq2
 	ld	a,[hl]
 	add	1	; can't use inc a here because of the adc
 	ld	[hl+],a
@@ -1556,7 +1585,7 @@ SSFP_MUSIC_FX2_VIB1:
 	ld	[hl],a
 	ldh	[rAUD2HIGH],a
 
-	ld	hl,wChannelMusicFXParam+1*2+1
+	ld	hl,wChannelMusicFXParamA2+1
 	dec	[hl]
 	dec	hl
 	jp	nz,SSFP_MusicFX_Done2
@@ -1565,7 +1594,7 @@ SSFP_MUSIC_FX2_VIB1:
 
 	; store the fx id
 	ld	a,MUSIC_FX_VIB2
-	ld	[wChannelMusicEffects+1],a
+	ld	[wChannelMusicEffect2],a
 	jp	SSFP_MusicFX_Done2
 
 ; --------------------------------------------------------------------------------------------------------------------------
@@ -1576,7 +1605,7 @@ SECTION	"SoundSystem_SSFP_MUSIC_FX2_VIB2",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
 ENDC
 
 SSFP_MUSIC_FX2_VIB2:
-	ld	hl,wChannelFreqs+1*2
+	ld	hl,wChannelFreq2
 	ld	a,[hl]
 	add	$FF	; can't use dec a here because of the adc
 	ld	[hl+],a
@@ -1587,7 +1616,7 @@ SSFP_MUSIC_FX2_VIB2:
 	ld	[hl],a
 	ldh	[rAUD2HIGH],a
 
-	ld	hl,wChannelMusicFXParam+1*2+1
+	ld	hl,wChannelMusicFXParamA2+1
 	dec	[hl]
 	dec	hl
 	jp	nz,SSFP_MusicFX_Done2
@@ -1596,7 +1625,7 @@ SSFP_MUSIC_FX2_VIB2:
 
 	; store the fx id
 	ld	a,MUSIC_FX_VIB1
-	ld	[wChannelMusicEffects+1],a
+	ld	[wChannelMusicEffect2],a
 	jp	SSFP_MusicFX_Done2
 
 ; --------------------------------------------------------------------------------------------------------------------------
@@ -1609,9 +1638,9 @@ ENDC
 SSFP_MUSIC_FX2_TF1:
 	ld	hl,FrequencyTable
 	ASSERT	LOW(FrequencyTable) == 0
-	ld	a,[wChannelMusicNotes+1]
+	ld	a,[wChannelMusicNote2]
 	ld	c,a
-	ld	a,[wChannelMusicFXParam+1*2+0]
+	ld	a,[wChannelMusicFXParamA2]
 	add	c
 	cp	NUM_NOTES
 	jr	c,.noteok
@@ -1626,7 +1655,7 @@ SSFP_MUSIC_FX2_TF1:
 
 	; store the fx id
 	ld	a,MUSIC_FX_TRIPLEFREQ2
-	ld	[wChannelMusicEffects+1],a
+	ld	[wChannelMusicEffect2],a
 	jp	SSFP_MusicFX_Done2
 
 ; --------------------------------------------------------------------------------------------------------------------------
@@ -1639,9 +1668,9 @@ ENDC
 SSFP_MUSIC_FX2_TF2:
 	ld	hl,FrequencyTable
 	ASSERT	LOW(FrequencyTable) == 0
-	ld	a,[wChannelMusicNotes+1]
+	ld	a,[wChannelMusicNote2]
 	ld	c,a
-	ld	a,[wChannelMusicFXParam+1*2+1]
+	ld	a,[wChannelMusicFXParamA2+1]
 	add	c
 	cp	NUM_NOTES
 	jr	c,.noteok
@@ -1656,7 +1685,7 @@ SSFP_MUSIC_FX2_TF2:
 
 	; store the fx id
 	ld	a,MUSIC_FX_TRIPLEFREQ3
-	ld	[wChannelMusicEffects+1],a
+	ld	[wChannelMusicEffect2],a
 	jp	SSFP_MusicFX_Done2
 
 ; --------------------------------------------------------------------------------------------------------------------------
@@ -1669,7 +1698,7 @@ ENDC
 SSFP_MUSIC_FX2_TF3:
 	ld	hl,FrequencyTable
 	ASSERT	LOW(FrequencyTable) == 0
-	ld	a,[wChannelMusicNotes+1]
+	ld	a,[wChannelMusicNote2]
 	add	a
 	ld	l,a
 	ld	a,[hl+]
@@ -1679,7 +1708,7 @@ SSFP_MUSIC_FX2_TF3:
 
 	; store the fx id
 	ld	a,MUSIC_FX_TRIPLEFREQ1
-	ld	[wChannelMusicEffects+1],a
+	ld	[wChannelMusicEffect2],a
 	jp	SSFP_MusicFX_Done2
 
 ; --------------------------------------------------------------------------------------------------------------------------
@@ -1690,7 +1719,7 @@ SECTION	"SoundSystem_SSFP_MUSIC_FX2_PITCHUP",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
 ENDC
 
 SSFP_MUSIC_FX2_PITCHUP:
-	ld	hl,wChannelMusicFXParam+1*2
+	ld	hl,wChannelMusicFXParamA2
 	ld	a,[hl]
 	dec	a
 	ld	[hl+],a
@@ -1698,9 +1727,9 @@ SSFP_MUSIC_FX2_PITCHUP:
 	ld	a,[hl-]
 	ld	[hl],a
 
-	ld	hl,wChannelMusicFXParam2+1*2
+	ld	hl,wChannelMusicFXParamB2
 	ld	b,[hl]
-	ld	hl,wChannelFreqs+1*2
+	ld	hl,wChannelFreq2
 	ld	a,[hl]
 	add	b
 	ld	[hl+],a
@@ -1721,7 +1750,7 @@ SECTION	"SoundSystem_SSFP_MUSIC_FX2_PITCHDOWN",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
 ENDC
 
 SSFP_MUSIC_FX2_PITCHDOWN:
-	ld	hl,wChannelMusicFXParam+1*2
+	ld	hl,wChannelMusicFXParamA2
 	ld	a,[hl]
 	dec	a
 	ld	[hl+],a
@@ -1729,9 +1758,9 @@ SSFP_MUSIC_FX2_PITCHDOWN:
 	ld	a,[hl-]
 	ld	[hl],a
 
-	ld	hl,wChannelMusicFXParam2+1*2
+	ld	hl,wChannelMusicFXParamB2
 	ld	b,[hl]
-	ld	hl,wChannelFreqs+1*2
+	ld	hl,wChannelFreq2
 	ld	a,[hl]
 	sub	b
 	ld	[hl+],a
@@ -1755,7 +1784,7 @@ SECTION	"SoundSystem_SSFP_MUSIC_FX3_VIB1",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
 ENDC
 
 SSFP_MUSIC_FX3_VIB1:
-	ld	hl,wChannelFreqs+2*2
+	ld	hl,wChannelFreq3
 	ld	a,[hl]
 	add	1	; can't use inc a here because of the adc
 	ld	[hl+],a
@@ -1766,7 +1795,7 @@ SSFP_MUSIC_FX3_VIB1:
 	ld	[hl],a
 	ldh	[rAUD3HIGH],a
 
-	ld	hl,wChannelMusicFXParam+2*2+1
+	ld	hl,wChannelMusicFXParamA3+1
 	dec	[hl]
 	dec	hl
 	jp	nz,SSFP_MusicFX_Done3
@@ -1775,7 +1804,7 @@ SSFP_MUSIC_FX3_VIB1:
 
 	; store the fx id
 	ld	a,MUSIC_FX_VIB2
-	ld	[wChannelMusicEffects+2],a
+	ld	[wChannelMusicEffect3],a
 	jp	SSFP_MusicFX_Done3
 
 ; --------------------------------------------------------------------------------------------------------------------------
@@ -1786,7 +1815,7 @@ SECTION	"SoundSystem_SSFP_MUSIC_FX3_VIB2",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
 ENDC
 
 SSFP_MUSIC_FX3_VIB2:
-	ld	hl,wChannelFreqs+2*2
+	ld	hl,wChannelFreq3
 	ld	a,[hl]
 	add	$FF	; can't use dec a here because of the adc
 	ld	[hl+],a
@@ -1797,7 +1826,7 @@ SSFP_MUSIC_FX3_VIB2:
 	ld	[hl],a
 	ldh	[rAUD3HIGH],a
 
-	ld	hl,wChannelMusicFXParam+2*2+1
+	ld	hl,wChannelMusicFXParamA3+1
 	dec	[hl]
 	dec	hl
 	jp	nz,SSFP_MusicFX_Done3
@@ -1806,7 +1835,7 @@ SSFP_MUSIC_FX3_VIB2:
 
 	; store the fx id
 	ld	a,MUSIC_FX_VIB1
-	ld	[wChannelMusicEffects+2],a
+	ld	[wChannelMusicEffect3],a
 	jp	SSFP_MusicFX_Done3
 
 ; --------------------------------------------------------------------------------------------------------------------------
@@ -1819,9 +1848,9 @@ ENDC
 SSFP_MUSIC_FX3_TF1:
 	ld	hl,FrequencyTable
 	ASSERT	LOW(FrequencyTable) == 0
-	ld	a,[wChannelMusicNotes+2]
+	ld	a,[wChannelMusicNote3]
 	ld	c,a
-	ld	a,[wChannelMusicFXParam+2*2+0]
+	ld	a,[wChannelMusicFXParamA3]
 	add	c
 	cp	NUM_NOTES
 	jr	c,.noteok
@@ -1836,7 +1865,7 @@ SSFP_MUSIC_FX3_TF1:
 
 	; store the fx id
 	ld	a,MUSIC_FX_TRIPLEFREQ2
-	ld	[wChannelMusicEffects+2],a
+	ld	[wChannelMusicEffect3],a
 	jp	SSFP_MusicFX_Done3
 
 ; --------------------------------------------------------------------------------------------------------------------------
@@ -1849,9 +1878,9 @@ ENDC
 SSFP_MUSIC_FX3_TF2:
 	ld	hl,FrequencyTable
 	ASSERT	LOW(FrequencyTable) == 0
-	ld	a,[wChannelMusicNotes+2]
+	ld	a,[wChannelMusicNote3]
 	ld	c,a
-	ld	a,[wChannelMusicFXParam+2*2+1]
+	ld	a,[wChannelMusicFXParamA3+1]
 	add	c
 	cp	NUM_NOTES
 	jr	c,.noteok
@@ -1866,7 +1895,7 @@ SSFP_MUSIC_FX3_TF2:
 
 	; store the fx id
 	ld	a,MUSIC_FX_TRIPLEFREQ3
-	ld	[wChannelMusicEffects+2],a
+	ld	[wChannelMusicEffect3],a
 	jp	SSFP_MusicFX_Done3
 
 ; --------------------------------------------------------------------------------------------------------------------------
@@ -1879,7 +1908,7 @@ ENDC
 SSFP_MUSIC_FX3_TF3:
 	ld	hl,FrequencyTable
 	ASSERT	LOW(FrequencyTable) == 0
-	ld	a,[wChannelMusicNotes+2]
+	ld	a,[wChannelMusicNote3]
 	add	a
 	ld	l,a
 	ld	a,[hl+]
@@ -1889,7 +1918,7 @@ SSFP_MUSIC_FX3_TF3:
 
 	; store the fx id
 	ld	a,MUSIC_FX_TRIPLEFREQ1
-	ld	[wChannelMusicEffects+2],a
+	ld	[wChannelMusicEffect3],a
 	jp	SSFP_MusicFX_Done3
 
 ; --------------------------------------------------------------------------------------------------------------------------
@@ -1900,7 +1929,7 @@ SECTION	"SoundSystem_SSFP_MUSIC_FX3_PITCHUP",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
 ENDC
 
 SSFP_MUSIC_FX3_PITCHUP:
-	ld	hl,wChannelMusicFXParam+2*2
+	ld	hl,wChannelMusicFXParamA3
 	ld	a,[hl]
 	dec	a
 	ld	[hl+],a
@@ -1908,9 +1937,9 @@ SSFP_MUSIC_FX3_PITCHUP:
 	ld	a,[hl-]
 	ld	[hl],a
 
-	ld	hl,wChannelMusicFXParam2+2*2
+	ld	hl,wChannelMusicFXParamB3
 	ld	b,[hl]
-	ld	hl,wChannelFreqs+2*2
+	ld	hl,wChannelFreq3
 	ld	a,[hl]
 	add	b
 	ld	[hl+],a
@@ -1931,7 +1960,7 @@ SECTION	"SoundSystem_SSFP_MUSIC_FX3_PITCHDOWN",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
 ENDC
 
 SSFP_MUSIC_FX3_PITCHDOWN:
-	ld	hl,wChannelMusicFXParam+2*2
+	ld	hl,wChannelMusicFXParamA3
 	ld	a,[hl]
 	dec	a
 	ld	[hl+],a
@@ -1939,9 +1968,9 @@ SSFP_MUSIC_FX3_PITCHDOWN:
 	ld	a,[hl-]
 	ld	[hl],a
 
-	ld	hl,wChannelMusicFXParam2+2*2
+	ld	hl,wChannelMusicFXParamB3
 	ld	b,[hl]
-	ld	hl,wChannelFreqs+2*2
+	ld	hl,wChannelFreq3
 	ld	a,[hl]
 	sub	b
 	ld	[hl+],a
@@ -1985,8 +2014,8 @@ SSFP_MUSIC_CMD_PLAYINSTNOTE:
 	ld	l,a
 	ld	a,[de]
 	and	$03
-	ld	b,HIGH(wChannelMusicNotes)
-	add	LOW(wChannelMusicNotes)
+	ld	b,HIGH(wChannelMusicNote1)
+	add	LOW(wChannelMusicNote1)
 	ld	c,a
 	ld	a,l
 	ld	[bc],a
@@ -1997,11 +2026,11 @@ SSFP_MUSIC_CMD_PLAYINSTNOTE:
 	ld	h,HIGH(FrequencyTable)
 	ASSERT	LOW(FrequencyTable) == 0
 
-	ld	b,HIGH(wChannelMusicFreqs)
+	ld	b,HIGH(wChannelMusicFreq1)
 	ld	a,[de]
 	and	$03
 	add	a
-	add	LOW(wChannelMusicFreqs)
+	add	LOW(wChannelMusicFreq1)
 	ld	c,a
 	ld	a,[hl+]
 	ld	[bc],a
@@ -2053,11 +2082,11 @@ SSFP_MUSIC_CMD_PLAYINST:
 	ENDC
 
 	ld	a,[hl+]
-	ld	[wMusicSFXInstPtr+3*2],a
+	ld	[wMusicSFXInstPtr4],a
 	ld	a,[hl]
-	ld	[wMusicSFXInstPtr+3*2+1],a
+	ld	[wMusicSFXInstPtr4+1],a
 	ld	a,1
-	ld	[wMusicSFXInstPause+3],a
+	ld	[wMusicSFXInstPause4],a
 
 	; update the rom bank
 	ld	a,[wMusicInstrumentBank]
@@ -2067,8 +2096,8 @@ SSFP_MUSIC_CMD_PLAYINST:
 	ld	[wMusicSFXInstBank4+1],a
 	ENDC
 
-	ld	hl,wChannelMusicFreqs+3*2
-	ld	bc,wChannelFreqs+3*2
+	ld	hl,wChannelMusicFreq4
+	ld	bc,wChannelFreq4
 	ld	a,[hl+]
 	ld	[bc],a
 	inc	c
@@ -2090,11 +2119,11 @@ SSFP_MUSIC_CMD_PLAYINST:
 	ENDC
 
 	ld	a,[hl+]
-	ld	[wMusicSFXInstPtr+1*2],a
+	ld	[wMusicSFXInstPtr2],a
 	ld	a,[hl]
-	ld	[wMusicSFXInstPtr+1*2+1],a
+	ld	[wMusicSFXInstPtr2+1],a
 	ld	a,1
-	ld	[wMusicSFXInstPause+1],a
+	ld	[wMusicSFXInstPause2],a
 
 	; update the rom bank
 	ld	a,[wMusicInstrumentBank]
@@ -2104,8 +2133,8 @@ SSFP_MUSIC_CMD_PLAYINST:
 	ld	[wMusicSFXInstBank2+1],a
 	ENDC
 
-	ld	hl,wChannelMusicFreqs+1*2
-	ld	bc,wChannelFreqs+1*2
+	ld	hl,wChannelMusicFreq2
+	ld	bc,wChannelFreq2
 	ld	a,[hl+]
 	ld	[bc],a
 	inc	c
@@ -2127,11 +2156,11 @@ SSFP_MUSIC_CMD_PLAYINST:
 	ENDC
 
 	ld	a,[hl+]
-	ld	[wMusicSFXInstPtr+2*2],a
+	ld	[wMusicSFXInstPtr3],a
 	ld	a,[hl]
-	ld	[wMusicSFXInstPtr+2*2+1],a
+	ld	[wMusicSFXInstPtr3+1],a
 	ld	a,1
-	ld	[wMusicSFXInstPause+2],a
+	ld	[wMusicSFXInstPause3],a
 
 	; update the rom bank
 	ld	a,[wMusicInstrumentBank]
@@ -2141,8 +2170,8 @@ SSFP_MUSIC_CMD_PLAYINST:
 	ld	[wMusicSFXInstBank3+1],a
 	ENDC
 
-	ld	hl,wChannelMusicFreqs+2*2
-	ld	bc,wChannelFreqs+2*2
+	ld	hl,wChannelMusicFreq3
+	ld	bc,wChannelFreq3
 	ld	a,[hl+]
 	ld	[bc],a
 	inc	c
@@ -2164,11 +2193,11 @@ SSFP_MUSIC_CMD_PLAYINST:
 	ENDC
 
 	ld	a,[hl+]
-	ld	[wMusicSFXInstPtr+0*2],a
+	ld	[wMusicSFXInstPtr1],a
 	ld	a,[hl]
-	ld	[wMusicSFXInstPtr+0*2+1],a
+	ld	[wMusicSFXInstPtr1+1],a
 	ld	a,1
-	ld	[wMusicSFXInstPause+0],a
+	ld	[wMusicSFXInstPause1],a
 
 	; update the rom bank
 	ld	a,[wMusicInstrumentBank]
@@ -2178,8 +2207,8 @@ SSFP_MUSIC_CMD_PLAYINST:
 	ld	[wMusicSFXInstBank1+1],a
 	ENDC
 
-	ld	hl,wChannelMusicFreqs+0*2
-	ld	bc,wChannelFreqs+0*2
+	ld	hl,wChannelMusicFreq1
+	ld	bc,wChannelFreq1
 	ld	a,[hl+]
 	ld	[bc],a
 	inc	c
@@ -2209,9 +2238,9 @@ SSFP_MUSIC_CMD_SETVOLUME:
 	inc	de
 	ld	c,a
 	and	$03
-	add	LOW(wChannelVols)
+	add	LOW(wChannelVol1)
 	ld	l,a
-	ld	a,HIGH(wChannelVols)
+	ld	a,HIGH(wChannelVol1)
 	adc	0
 	ld	h,a
 	ld	a,c
@@ -2230,16 +2259,16 @@ SSFP_MUSIC_CMD_VIBRATO_ON:
 	ld	a,[de]
 	ld	c,a
 	and	$03
-	add	LOW(wChannelMusicEffects)
-	ld	h,HIGH(wChannelMusicEffects)
+	add	LOW(wChannelMusicEffect1)
+	ld	h,HIGH(wChannelMusicEffect1)
 	ld	l,a
 	ld	[hl],MUSIC_FX_VIB1
 
-	sub	LOW(wChannelMusicEffects)
+	sub	LOW(wChannelMusicEffect1)
 	add	a
-	add	LOW(wChannelMusicFXParam)
+	add	LOW(wChannelMusicFXParamA1)
 	ld	c,a
-	ld	b,HIGH(wChannelMusicFXParam)
+	ld	b,HIGH(wChannelMusicFXParamA1)
 	ld	a,[de]
 	swap	a
 	and	$0F
@@ -2264,8 +2293,8 @@ ENDC
 SSFP_MUSIC_CMD_EFFECT_OFF:
 	ld	a,[de]
 	inc	de
-	add	LOW(wChannelMusicEffects)
-	ld	h,HIGH(wChannelMusicEffects)
+	add	LOW(wChannelMusicEffect1)
+	ld	h,HIGH(wChannelMusicEffect1)
 	ld	l,a
 	ld	[hl],MUSIC_FX_NONE
 	jp	SSFP_MusicUpdate
@@ -2443,8 +2472,8 @@ ENDC
 SSFP_MUSIC_CMD_PITCHUP_ON:
 	ld	a,[de]
 	and	$03
-	add	LOW(wChannelMusicEffects)
-	ld	h,HIGH(wChannelMusicEffects)
+	add	LOW(wChannelMusicEffect1)
+	ld	h,HIGH(wChannelMusicEffect1)
 	ld	l,a
 	ld	[hl],MUSIC_FX_PITCHUP
 	jr	SSFP_MUSIC_CMD_PITCHUP_reuse
@@ -2452,17 +2481,17 @@ SSFP_MUSIC_CMD_PITCHUP_ON:
 SSFP_MUSIC_CMD_PITCHDOWN_ON:
 	ld	a,[de]
 	and	$03
-	add	LOW(wChannelMusicEffects)
-	ld	h,HIGH(wChannelMusicEffects)
+	add	LOW(wChannelMusicEffect1)
+	ld	h,HIGH(wChannelMusicEffect1)
 	ld	l,a
 	ld	[hl],MUSIC_FX_PITCHDOWN
 
 SSFP_MUSIC_CMD_PITCHUP_reuse:
-	sub	LOW(wChannelMusicEffects)
+	sub	LOW(wChannelMusicEffect1)
 	add	a
-	add	LOW(wChannelMusicFXParam)
+	add	LOW(wChannelMusicFXParamA1)
 	ld	c,a
-	ld	b,HIGH(wChannelMusicFXParam)
+	ld	b,HIGH(wChannelMusicFXParamA1)
 	ld	a,[de]
 	swap	a
 	and	$0F
@@ -2494,11 +2523,11 @@ SSFP_MUSIC_CMD_TRIPLENOTE_ON:
 	; note
 	ld	l,a
 
-	ld	b,HIGH(wChannelMusicFXParam)
+	ld	b,HIGH(wChannelMusicFXParamA1)
 	ld	a,[de]
 	and	$03
 	add	a
-	add	LOW(wChannelMusicFXParam)
+	add	LOW(wChannelMusicFXParamA1)
 	ld	c,a
 	ld	a,l
 	swap	a
@@ -2514,8 +2543,8 @@ SSFP_MUSIC_CMD_TRIPLENOTE_ON:
 
 	ld	c,a
 	and	$03
-	add	LOW(wChannelMusicEffects)
-	ld	h,HIGH(wChannelMusicEffects)
+	add	LOW(wChannelMusicEffect1)
+	ld	h,HIGH(wChannelMusicEffect1)
 	ld	l,a
 	ld	[hl],MUSIC_FX_TRIPLEFREQ1
 
@@ -2568,9 +2597,6 @@ SSFP_MUSIC_CMD_EXTRA_chnl3:
 ;***************************************************************************************************************************
 
 ; channel 1
-
-CHANNELINDEX	SET	0
-
 IF (SOUNDSYSTEM_CODE_BANK == 0)
 SECTION	"SoundSystem_SSFP_Inst1Update",ROM0
 ELSE
@@ -2599,7 +2625,7 @@ ENDC
 SSFP_Inst1_CMD_FRAMEEND:
 	ld	a,[de]
 	inc	de
-	ld	[wMusicSFXInstPause+CHANNELINDEX],a	; load new pause
+	ld	[wMusicSFXInstPause1],a	; load new pause
 	jp	SSFP_Inst1UpdateFrameEnd
 
 ; --------------------------------------------------------------------------------------------------------------------------
@@ -2610,11 +2636,11 @@ SECTION	"SoundSystem_SSFP_Inst1_CMD_START",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
 ENDC
 
 SSFP_Inst1_CMD_START:
-	ld	a,[wChannelFreqs+CHANNELINDEX*2]
+	ld	a,[wChannelFreq1]
 	ldh	[rAUD1LOW],a
 	ld	a,[de]
 	inc	de
-	ld	hl,wChannelFreqs+CHANNELINDEX*2+1
+	ld	hl,wChannelFreq1+1
 	or	[hl]
 	ldh	[rAUD1HIGH],a
 	jp	SSFP_Inst1Update
@@ -2635,8 +2661,8 @@ SSFP_Inst1_CMD_END:
 	ld	[wSoundFXLock],a
 
 	; restore music freq
-	ld	hl,wChannelMusicFreqs+0*2
-	ld	bc,wChannelFreqs+0*2
+	ld	hl,wChannelMusicFreq1
+	ld	bc,wChannelFreq1
 	ld	a,[hl+]
 	ld	[bc],a
 	inc	c
@@ -2655,14 +2681,14 @@ ENDC
 SSFP_Inst1_CMD_ENVELOPE:
 	ld	a,[de]
 	inc	de
-	ld	hl,wChannelVols+CHANNELINDEX
+	ld	hl,wChannelVol1
 	or	[hl]
 	ldh	[rAUD1ENV],a
 
 	IF (SOUNDSYSTEM_ENABLE_VUM)
 	swap	a
 	and	$0F
-	ld	[wVUMeters+0],a
+	ld	[wVUMeter1],a
 	ENDC
 
 	jp	SSFP_Inst1Update
@@ -2698,7 +2724,7 @@ SSFP_Inst1_CMD_ENVELOPEVOL:
 	IF (SOUNDSYSTEM_ENABLE_VUM)
 	swap	a
 	and	$0F
-	ld	[wVUMeters+0],a
+	ld	[wVUMeter1],a
 	ENDC
 
 	jp	SSFP_Inst1Update
@@ -2718,7 +2744,7 @@ SSFP_Inst1_CMD_STARTENVVOLFREQ:
 	IF (SOUNDSYSTEM_ENABLE_VUM)
 	swap	a
 	and	$0F
-	ld	[wVUMeters+0],a
+	ld	[wVUMeter1],a
 	ENDC
 
 	ld	a,[de]
@@ -2806,8 +2832,6 @@ SSFP_Inst1_CMD_SWEEP:
 ; ==========================================================================================================================
 ; channel 2
 
-CHANNELINDEX	SET	1
-
 IF (SOUNDSYSTEM_CODE_BANK == 0)
 SECTION	"SoundSystem_SSFP_Inst2Update",ROM0
 ELSE
@@ -2836,7 +2860,7 @@ ENDC
 SSFP_Inst2_CMD_FRAMEEND:
 	ld	a,[de]
 	inc	de
-	ld	[wMusicSFXInstPause+CHANNELINDEX],a	; load new pause
+	ld	[wMusicSFXInstPause2],a	; load new pause
 	jp	SSFP_Inst2UpdateFrameEnd
 
 ; --------------------------------------------------------------------------------------------------------------------------
@@ -2847,11 +2871,11 @@ SECTION	"SoundSystem_SSFP_Inst2_CMD_START",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
 ENDC
 
 SSFP_Inst2_CMD_START:
-	ld	a,[wChannelFreqs+CHANNELINDEX*2]
+	ld	a,[wChannelFreq2]
 	ldh	[rAUD2LOW],a
 	ld	a,[de]
 	inc	de
-	ld	hl,wChannelFreqs+CHANNELINDEX*2+1
+	ld	hl,wChannelFreq2+1
 	or	[hl]
 	ldh	[rAUD2HIGH],a
 	jp	SSFP_Inst2Update
@@ -2872,8 +2896,8 @@ SSFP_Inst2_CMD_END:
 	ld	[wSoundFXLock],a
 
 	; restore music freq
-	ld	hl,wChannelMusicFreqs+1*2
-	ld	bc,wChannelFreqs+1*2
+	ld	hl,wChannelMusicFreq2
+	ld	bc,wChannelFreq2
 	ld	a,[hl+]
 	ld	[bc],a
 	inc	c
@@ -2892,14 +2916,14 @@ ENDC
 SSFP_Inst2_CMD_ENVELOPE:
 	ld	a,[de]
 	inc	de
-	ld	hl,wChannelVols+CHANNELINDEX
+	ld	hl,wChannelVol2
 	or	[hl]
 	ldh	[rAUD2ENV],a
 
 	IF (SOUNDSYSTEM_ENABLE_VUM)
 	swap	a
 	and	$0F
-	ld	[wVUMeters+1],a
+	ld	[wVUMeter2],a
 	ENDC
 
 	jp	SSFP_Inst2Update
@@ -2935,7 +2959,7 @@ SSFP_Inst2_CMD_ENVELOPEVOL:
 	IF (SOUNDSYSTEM_ENABLE_VUM)
 	swap	a
 	and	$0F
-	ld	[wVUMeters+1],a
+	ld	[wVUMeter2],a
 	ENDC
 
 	jp	SSFP_Inst2Update
@@ -2955,7 +2979,7 @@ SSFP_Inst2_CMD_STARTENVVOLFREQ:
 	IF (SOUNDSYSTEM_ENABLE_VUM)
 	swap	a
 	and	$0F
-	ld	[wVUMeters+1],a
+	ld	[wVUMeter2],a
 	ENDC
 
 	ld	a,[de]
@@ -3041,8 +3065,6 @@ SSFP_Inst2_CMD_SWEEP:
 ; ==========================================================================================================================
 ; channel 3
 
-CHANNELINDEX	SET	2
-
 IF (SOUNDSYSTEM_CODE_BANK == 0)
 SECTION	"SoundSystem_SSFP_Inst3Update",ROM0
 ELSE
@@ -3071,7 +3093,7 @@ ENDC
 SSFP_Inst3_CMD_FRAMEEND:
 	ld	a,[de]
 	inc	de
-	ld	[wMusicSFXInstPause+CHANNELINDEX],a	; load new pause
+	ld	[wMusicSFXInstPause3],a	; load new pause
 	jp	SSFP_Inst3UpdateFrameEnd
 
 ; --------------------------------------------------------------------------------------------------------------------------
@@ -3082,13 +3104,13 @@ SECTION	"SoundSystem_SSFP_Inst3_CMD_START",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
 ENDC
 
 SSFP_Inst3_CMD_START:
-	ld	a,[wChannelFreqs+CHANNELINDEX*2]
+	ld	a,[wChannelFreq3]
 	ldh	[rAUD3LOW],a
 	ld	a,AUD3ENA_ON
 	ldh	[rAUD3ENA],a
 	ld	a,[de]
 	inc	de
-	ld	hl,wChannelFreqs+CHANNELINDEX*2+1
+	ld	hl,wChannelFreq3+1
 	or	[hl]
 	ldh	[rAUD3HIGH],a
 	jp	SSFP_Inst3Update
@@ -3106,7 +3128,7 @@ SSFP_Inst3_CMD_END:
 	ldh	[rAUD3ENA],a
 
 	IF (SOUNDSYSTEM_ENABLE_VUM)
-	ld	[wVUMeters+2],a
+	ld	[wVUMeter3],a
 	ENDC
 
 	ld	a,[wSoundFXLock]
@@ -3116,8 +3138,8 @@ SSFP_Inst3_CMD_END:
 	ld	[wSoundFXLock],a
 
 	; restore music freq
-	ld	hl,wChannelMusicFreqs+2*2
-	ld	bc,wChannelFreqs+2*2
+	ld	hl,wChannelMusicFreq3
+	ld	bc,wChannelFreq3
 	ld	a,[hl+]
 	ld	[bc],a
 	inc	c
@@ -3136,7 +3158,7 @@ ENDC
 SSFP_Inst3_CMD_ENVELOPE:
 	ld	a,[de]
 	inc	de
-	ld	hl,wChannelVols+CHANNELINDEX
+	ld	hl,wChannelVol3
 	or	[hl]
 	ldh	[rAUD3LEVEL],a
 
@@ -3146,7 +3168,7 @@ SSFP_Inst3_CMD_ENVELOPE:
 	and	$0C
 	dec	a
 	xor	$0C
-	ld	[wVUMeters+2],a
+	ld	[wVUMeter3],a
 	ENDC
 
 	jp	SSFP_Inst3Update
@@ -3187,7 +3209,7 @@ SSFP_Inst3_CMD_ENVELOPEVOL:
 	and	$0C
 	dec	a
 	xor	$0C
-	ld	[wVUMeters+2],a
+	ld	[wVUMeter3],a
 	ENDC
 
 	jp	SSFP_Inst3Update
@@ -3210,7 +3232,7 @@ SSFP_Inst3_CMD_STARTENVVOLFREQ:
 	and	$0C
 	dec	a
 	xor	$0C
-	ld	[wVUMeters+2],a
+	ld	[wVUMeter3],a
 	ENDC
 
 	ld	a,[de]
@@ -3323,8 +3345,6 @@ SSFP_Inst3_CMD_LEN:
 ; ==========================================================================================================================
 ; channel 4
 
-CHANNELINDEX	SET	3
-
 IF (SOUNDSYSTEM_CODE_BANK == 0)
 SECTION	"SoundSystem_SSFP_Inst4Update",ROM0
 ELSE
@@ -3353,7 +3373,7 @@ ENDC
 SSFP_Inst4_CMD_FRAMEEND:
 	ld	a,[de]
 	inc	de
-	ld	[wMusicSFXInstPause+CHANNELINDEX],a	; load new pause
+	ld	[wMusicSFXInstPause4],a	; load new pause
 	jp	SSFP_Inst4UpdateFrameEnd
 
 ; --------------------------------------------------------------------------------------------------------------------------
@@ -3385,8 +3405,8 @@ SSFP_Inst4_CMD_END:
 	ld	[wSoundFXLock],a
 
 	; restore music freq
-	ld	hl,wChannelMusicFreqs+3*2
-	ld	bc,wChannelFreqs+3*2
+	ld	hl,wChannelMusicFreq4
+	ld	bc,wChannelFreq4
 	ld	a,[hl+]
 	ld	[bc],a
 	inc	c
@@ -3405,14 +3425,14 @@ ENDC
 SSFP_Inst4_CMD_ENVELOPE:
 	ld	a,[de]
 	inc	de
-	ld	hl,wChannelVols+CHANNELINDEX
+	ld	hl,wChannelVol4
 	or	[hl]
 	ldh	[rAUD4ENV],a
 
 	IF (SOUNDSYSTEM_ENABLE_VUM)
 	swap	a
 	and	$0F
-	ld	[wVUMeters+3],a
+	ld	[wVUMeter4],a
 	ENDC
 
 	jp	SSFP_Inst4Update
@@ -3448,7 +3468,7 @@ SSFP_Inst4_CMD_ENVELOPEVOL:
 	IF (SOUNDSYSTEM_ENABLE_VUM)
 	swap	a
 	and	$0F
-	ld	[wVUMeters+3],a
+	ld	[wVUMeter4],a
 	ENDC
 
 	jp	SSFP_Inst4Update
@@ -3468,7 +3488,7 @@ SSFP_Inst4_CMD_STARTENVVOLFREQ:
 	IF (SOUNDSYSTEM_ENABLE_VUM)
 	swap	a
 	and	$0F
-	ld	[wVUMeters+3],a
+	ld	[wVUMeter4],a
 	ENDC
 
 	ld	a,[de]
