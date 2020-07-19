@@ -193,7 +193,8 @@ SOUNDSYSTEM_INC	SET	1
 ; Arguments:
 ;    B - id (not byte offset) of the sound effect to play
 ;    C - note (frequency) at which to play the sound effect, 0-71
-;        6 octaves of 12 notes: C2 (0) to B7 (71), middle C is C4 (24)
+;        6 octaves of 12 notes: C_2 (0) to B_7 (71), middle C is C_4 (24)
+;        See SoundSystemNotes.inc for specific values.
 ;
 ; Example:
 ;    ld   b,COOL_SFX_1

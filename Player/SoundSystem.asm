@@ -1,4 +1,5 @@
 
+INCLUDE	"SoundSystemNotes.inc"
 INCLUDE	"SoundSystem.def"
 ; tabs=8,hard
 
