@@ -180,29 +180,32 @@ SOUNDSYSTEM_INC	SET	1
 ;-------------------------------
 ; SFX_Play
 ;
-; This is the trigger to start a one-short sound effect actually playing (and
+; This is the trigger to start a one-shot sound effect actually playing (and
 ; processed by SoundSystem_Process).
 ;
 ; Notes:
 ; - SFX_Prepare needs to be called before this.
 ; - The sfx table is part of the data that is exported by GB Tracker.
 ; Labelled as 'SFX Table' in the exported data.
+; - The note will only take affect if the sound doesn't set a note in its
+; start command.
 ;
 ; Arguments:
 ;    B - id (not byte offset) of the sound effect to play
-;    C - note (pitch) at which to play the sound effect
+;    C - note (frequency) at which to play the sound effect, 0-71
+;        6 octaves of 12 notes: C2 (0) to B7 (71), middle C is C4 (24)
 ;
 ; Example:
 ;    ld   b,COOL_SFX_1
-;    ld   c,NOTE_MIDDLE_C
-;   ;ld   bc,(COOL_SFX_1<<8)|NOTE_MIDDLE_C    ; or this way as an optimization
+;    ld   c,C_4
+;   ;ld   bc,(COOL_SFX_1<<8)|C_4    ; or this way as an optimization
 ;    call SFX_Play
 
 
 ;-------------------------------
 ; SFX_Stop
 ;
-; This immediately terminates all one-shout sound effects from playing.
+; This immediately terminates all one-shot sound effects from playing.
 ;
 ; Notes:
 ; - It is safe to call this multiple times or of SFX_Play hasn't been called.
