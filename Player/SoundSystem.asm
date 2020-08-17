@@ -313,7 +313,7 @@ wMusicSFXInstChnl3WaveID:	DS	1	; current waveid loaded, IDs of 255 in instrument
 wMusicSFXInstChnl3Lock:		DS	1	; 0 = no lock, 1 = external lock
 
 ; music variables
-wMusicPlayMode:			DS	1	; current music mode, 0 = off, 1 = on
+wMusicPlayMode::		DS	1	; current music playback state, 0 = stopped, 1 = playing
 wMusicNextFrame:		DS	1	; number of frames until the next music commands
 wMusicCommandPtr:		DS	2	; position of playing music
 wMusicCommandBank:		DS	sizeof_BANK_VAR	; bank of playing music
@@ -321,8 +321,6 @@ wMusicOrderPtr:			DS	2	; position of pattern order list (list of pointers to sta
 wMusicOrderBank:		DS	sizeof_BANK_VAR	; bank of order list
 wMusicInstrumentTable:		DS	2	; table of instrument pointers
 wMusicInstrumentBank:		DS	sizeof_BANK_VAR	; bank of instruments
-
-wMusicPatternLoopCounter:	DS	1	; pattern loop counter
 
 ; miscellaneous variables
 wChannelMusicFreq1:		DS	2	; GB frequency of channel 1 for music backup
@@ -1003,8 +1001,6 @@ Music_Play::
 
 	; clear misc variables
 	xor	a
-	ld	[wMusicPatternLoopCounter],a	; pattern loop count = not in a loop
-	; ld [MusicOrderLoopCounter],a	; init order loop count to zero (not in a loop)
 	ld	[wMusicSyncFlag],a
 
 	; clear effects
