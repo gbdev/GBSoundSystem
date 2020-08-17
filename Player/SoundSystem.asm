@@ -286,7 +286,7 @@ ELSE
 SECTION	"SoundSystem Variables",WRAMX,BANK[SOUNDSYSTEM_WRAM_BANK],ALIGN[7]
 ENDC
 
-wMusicSyncFlag:			DS	1	; arbitrary value set by the song to sync visual effects with bg music
+wMusicSyncFlag::		DS	1	; arbitrary value set by the song to sync visual effects with bg music
 
 ; soundfx variables
 wSoundFXLock:			DS	1	; bitfield (see above), 1 = Music, 0 = SFX Locked
