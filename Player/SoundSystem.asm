@@ -1,6 +1,7 @@
 
 INCLUDE	"SoundSystemNotes.inc"
 INCLUDE	"SoundSystem.def"
+INCLUDE	"SoundSystem.inc"
 ; tabs=8,hard
 
 ;***************************************************************************************************************************
@@ -313,7 +314,7 @@ wMusicSFXInstChnl3WaveID:	DS	1	; current waveid loaded, IDs of 255 in instrument
 wMusicSFXInstChnl3Lock:		DS	1	; 0 = no lock, 1 = external lock
 
 ; music variables
-wMusicPlayMode::		DS	1	; current music playback state, 0 = stopped, 1 = playing
+wMusicPlayState::		DS	1	; current music playback state, 0 = stopped, 1 = playing
 wMusicNextFrame:		DS	1	; number of frames until the next music commands
 wMusicCommandPtr:		DS	2	; position of playing music
 wMusicCommandBank:		DS	sizeof_BANK_VAR	; bank of playing music
@@ -812,7 +813,7 @@ SSFP_Inst4UpdateDone:
 
 	;-------------------------------
 	; process music
-	ld	a,[wMusicPlayMode]
+	ld	a,[wMusicPlayState]
 	or	a		; is music playing?
 	ret	z		; no, exit early (nothing to do)
 
@@ -1033,8 +1034,8 @@ Music_Play::
 	ld	[wMusicOrderPtr+1],a
 
 	; turn on the music
-	ld	a,1
-	ld	[wMusicPlayMode],a
+	ld	a,MUSIC_STATE_PLAYING
+	ld	[wMusicPlayState],a
 
 	ret
 
@@ -1056,7 +1057,7 @@ Music_Pause::
 
 	; stop playing
 	xor	a
-	ld	[wMusicPlayMode],a
+	ld	[wMusicPlayState],a
 
 	; turn off channels used by music
 	ld	a,[wSoundFXLock]
@@ -1145,8 +1146,8 @@ Music_Resume::
 	ld	a,SOUNDSYSTEM_WRAM_BANK
 	ldh	[rSVBK],a
 	ENDC
-	ld	a,1
-	ld	[wMusicPlayMode],a
+	ld	a,MUSIC_STATE_PLAYING
+	ld	[wMusicPlayState],a
 	ret
 
 
@@ -2389,7 +2390,7 @@ ENDC
 
 SSFP_MUSIC_CMD_ENDOFSONG:
 	xor	a
-	ld	[wMusicPlayMode],a
+	ld	[wMusicPlayState],a
 	dec	de
 	jp	SSFP_MusicUpdateFrameEnd
 

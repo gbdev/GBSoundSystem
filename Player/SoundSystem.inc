@@ -245,6 +245,19 @@ SOUNDSYSTEM_INC	SET	1
 ;===============================
 
 ;-------------------------------
+; Playback State
+;
+; wMusicPlayState
+MUSIC_STATE_STOPPED	EQU	0
+MUSIC_STATE_PLAYING	EQU	1
+
+;-------------------------------
+; Synchronization
+;
+; wMusicSyncData
+; 00-FF
+
+;-------------------------------
 ; VU Meters
 ;
 ; SoundSystem can provide data that can drive a VU-meter type display. This is
@@ -261,6 +274,12 @@ SOUNDSYSTEM_INC	SET	1
 ;
 ; Notes:
 ; - CPU, code size, and RAM usage is slightly more if this is enabled.
+
+;-------------------------------
+; Identity
+;
+; SoundSystem_Version
+; SoundSystem_Author
 
 
 ENDC	; SOUNDSYSTEM_INC

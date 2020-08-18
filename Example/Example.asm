@@ -308,7 +308,7 @@ POPS
 
 ;--------------------------------------------------------------
 ToggleMusic:
-	ld	a,[wMusicPlayMode]
+	ld	a,[wMusicPlayState]
 	and	MUSIC_STATE_PLAYING
 	jr	nz,.pause
 	call	Music_Resume
@@ -368,7 +368,7 @@ POPS
 
 ;--------------------------------------------------------------
 DisplayMusicState:
-	ld	a,[wMusicPlayMode]
+	ld	a,[wMusicPlayState]
 	and	MUSIC_STATE_PLAYING
 	jr	nz,.playing
 	ld	bc,StoppedString
