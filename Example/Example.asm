@@ -389,7 +389,7 @@ PlayingString:
 DisplaySync:
 	ld	h,HIGH(HexTable)
 	ld	de,$99E7
-	ld	a,[wMusicSyncFlag]
+	ld	a,[wMusicSyncData]
 	ld	b,a
 
 	; left digit
