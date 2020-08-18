@@ -13,6 +13,7 @@ SONG_LDMKILLER	RB	1
 SONG_BOB	RB	1
 SONG_CERAMIC	RB	1
 SONG_STATION0	RB	1
+SONG_ZFLAGTEST	RB	1
 NUM_SONGS	RB	0
 
 RSRESET
@@ -267,6 +268,7 @@ SongDataTable:
 	DW	BobData
 	DW	CeramicData
 	DW	Station0Data
+	DW	ZFlagTestData
 ProjectS11Data:
 	DB	BANK(Inst_s11space)
 	DW	Inst_s11space
@@ -297,6 +299,11 @@ Station0Data:
 	DW	Inst_station0
 	DB	BANK(Music_station0)
 	DW	Music_station0
+ZFlagTestData:
+	DB	BANK(Inst_zflagtest)
+	DW	Inst_zflagtest
+	DB	BANK(Music_zflagtest)
+	DW	Music_zflagtest
 POPS
 
 ;--------------------------------------------------------------
@@ -342,6 +349,7 @@ SongTitleTable:
 	DW	BobString
 	DW	CeramicString
 	DW	Station0String
+	DW	ZFlagTestString
 ProjectS11String:
 	DB	" Project S-11 Space ",$00
 PlanetFuzzString:
@@ -354,6 +362,8 @@ CeramicString:
 	DB	"      Ceramic       ",$00
 Station0String:
 	DB	"     Station 0      ",$00
+ZFlagTestString:
+	DB	"  ZFlag/Sync Test   ",$00
 POPS
 
 ;--------------------------------------------------------------
@@ -377,22 +387,31 @@ PlayingString:
 
 ;--------------------------------------------------------------
 DisplaySync:
+	ld	h,HIGH(HexTable)
+	ld	de,$99E7
 	ld	a,[wMusicSyncFlag]
-	and	1
-	jr	nz,.yes
-	ld	bc,NoString
-	jr	.display
-.yes
-	ld	bc,YesString
-.display
-	MakeStringXY 6,15
-	call	PrintString
+	ld	b,a
+
+	; left digit
+	swap	a
+	and	$0F
+	ld	l,a
+	ld	a,[hl]
+	ld	[de],a
+
+	; right digit
+	inc	e
+	ld	l,b
+	and	$0F
+	ld	a,[hl]
+	ld	[de],a
 	ret
 
-NoString:
-	DB	"No ",$00	; the extra space is to clear the 's' from "Yes"
-YesString:
-	DB	"Yes",$00
+PUSHS
+SECTION	"Hex Table",ROM0,ALIGN[8]
+HexTable:
+	DB	"0123456789ABCDEF"
+POPS
 
 ;--------------------------------------------------------------
 DisplaySongID:
@@ -759,7 +778,7 @@ UIMap:
 	DB	"                                "
 	DB	$DA,"State",$D9,$CC,$CC,$CC,$B7,$DA,"VUM",$D9,$CC,$CC,$CC,$CC,"            "
 	DB	"Music:    ",$CD,"                     "
-	DB	"Sync?:    ",$CD,"                     "
+	DB	" Sync:$   ",$CD,"                     "
 	DB	" Song:0   ",$CD,"                     "
 	DB	"  SFX:0   ",$CD,"                     "
 UIMapEnd:
