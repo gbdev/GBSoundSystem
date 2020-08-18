@@ -376,7 +376,7 @@ ELSE
 SECTION	"SoundSystem_Identity",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
 ENDC
 SoundSystem_Version::
-	DB	"SoundSystem v20.228",$00
+	DB	"SoundSystem v20.231",$00
 SoundSystem_Author::
 	DB	"Code: S. Hockenhull",$00
 
@@ -410,18 +410,16 @@ SoundSystem_Init::
 	; set all channel volumes to 8
 	ld	a,$80
 	ld	hl,wChannelVol1
+	REPT 4
 	ld	[hl+],a
-	ld	[hl+],a
-	ld	[hl+],a
-	ld	[hl],a
+	ENDR
 
 	; set all channel sfxs to unused (etc.)
 	ld	a,$FF
 	ld	hl,wSoundFXStart
+	REPT 4
 	ld	[hl+],a
-	ld	[hl+],a
-	ld	[hl+],a
-	ld	[hl],a
+	ENDR
 	ld	[wSoundFXLock],a
 	ld	[wMusicSFXPanning],a
 	ld	[wMusicSFXInstChnl3WaveID],a
@@ -429,17 +427,27 @@ SoundSystem_Init::
 	; clear all channel music effects
 	xor	a
 	ld	hl,wChannelMusicEffect1
+	REPT 4
 	ld	[hl+],a
-	ld	[hl+],a
-	ld	[hl+],a
-	ld	[hl],a
+	ENDR
 	ld	[wMusicSFXInstChnl3Lock],a
 	; clear all sfx pause timers
 	ld	hl,wMusicSFXInstPause1
+	REPT 4
 	ld	[hl+],a
+	ENDR
+	; clear all channel music frequencies
+	ld	hl,wChannelMusicFreq1
+	REPT 8
 	ld	[hl+],a
+	ENDR
+	IF (SOUNDSYSTEM_ENABLE_VUM)
+	; clear all vu meter values
+	ld	hl,wVUMeter1
+	REPT 4
 	ld	[hl+],a
-	ld	[hl],a
+	ENDR
+	ENDC
 
 	; enable sound
 	ld	a,AUD3ENA_ON
