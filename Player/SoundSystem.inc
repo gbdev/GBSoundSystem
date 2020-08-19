@@ -247,15 +247,23 @@ SOUNDSYSTEM_INC	SET	1
 ;-------------------------------
 ; Playback State
 ;
-; wMusicPlayState
+; You can check the playback state by inspecting wMusicPlayState. EQUates are
+; provided below for possible values: either stopped or playing.
 MUSIC_STATE_STOPPED	EQU	0
 MUSIC_STATE_PLAYING	EQU	1
 
 ;-------------------------------
 ; Synchronization
 ;
+; The tracker has a mechanism that provides a way to synchronize the code with
+; the music via the Zxx Flag Command. This sends a value ($00-$FF) to the code
+; to be processed however applicable (or ignored).
+;
 ; wMusicSyncData
-; 00-FF
+;
+; Notes:
+; - This is a raw value and not further processed by SoundSystem so it is
+; entirely managed the musician.
 
 ;-------------------------------
 ; VU Meters
@@ -278,8 +286,12 @@ MUSIC_STATE_PLAYING	EQU	1
 ;-------------------------------
 ; Identity
 ;
-; SoundSystem_Version
-; SoundSystem_Author
+; There are two symbols that can be used for attribution:
+;     SoundSystem_Version
+;     SoundSystem_Author
+;
+; Notes:
+; - These are NULL-terminated strings.
 
 
 ENDC	; SOUNDSYSTEM_INC
