@@ -359,7 +359,7 @@ IDMKillerString:
 BobString:
 	DB	"        Bob         ",$00
 CeramicString:
-	DB	"      Ceramic       ",$00
+	DB	"   Ceramic Beats    ",$00
 Station0String:
 	DB	"     Station 0      ",$00
 ZFlagTestString:
