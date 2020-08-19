@@ -376,7 +376,7 @@ ELSE
 SECTION	"SoundSystem_Identity",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
 ENDC
 SoundSystem_Version::
-	DB	"SoundSystem v20.231",$00
+	DB	"SoundSystem v20.232",$00
 SoundSystem_Author::
 	DB	"Code: S. Hockenhull",$00
 
@@ -698,11 +698,7 @@ SoundSystem_Process::
 	;-------------------------------
 	; channel 1
 	ld	hl,wMusicSFXInstPause1
-	ld	a,[hl]
-	or	a			; is channel 1 active?
-	jr	z,SSFP_Inst1UpdateDone	; no, skip
-	dec	a
-	ld	[hl],a
+	dec	[hl]
 	jr	nz,SSFP_Inst1UpdateDone
 
 	; change the rom bank
@@ -729,11 +725,7 @@ SSFP_Inst1UpdateDone:
 	;-------------------------------
 	; channel 2
 	ld	hl,wMusicSFXInstPause2
-	ld	a,[hl]
-	or	a			; is channel 2 active?
-	jr	z,SSFP_Inst2UpdateDone	; no, skip
-	dec	a
-	ld	[hl],a
+	dec	[hl]
 	jr	nz,SSFP_Inst2UpdateDone
 
 	; change the rom bank
@@ -760,11 +752,7 @@ SSFP_Inst2UpdateDone:
 	;-------------------------------
 	; channel 3
 	ld	hl,wMusicSFXInstPause3
-	ld	a,[hl]
-	or	a			; is channel 3 active?
-	jr	z,SSFP_Inst3UpdateDone	; no, skip
-	dec	a
-	ld	[hl],a
+	dec	[hl]
 	jr	nz,SSFP_Inst3UpdateDone
 
 	; change the rom bank
@@ -791,11 +779,7 @@ SSFP_Inst3UpdateDone:
 	;-------------------------------
 	; channel 4
 	ld	hl,wMusicSFXInstPause4
-	ld	a,[hl]
-	or	a			; is channel 4 active?
-	jr	z,SSFP_Inst4UpdateDone	; no, skip
-	dec	a
-	ld	[hl],a
+	dec	[hl]
 	jr	nz,SSFP_Inst4UpdateDone
 
 	; change the rom bank
