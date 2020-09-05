@@ -90,7 +90,7 @@ ROMHeader::
 	jp	Start
 
 	NINTENDO_LOGO
-	DB	"GBSNDSYSTEM"	; title
+	DB	"SOUNDSYSTEM"	; title
 	DB	"DEMO"	; product code
 	DB	CART_COMPATIBLE_DMG
 	DW	$00	; license code
@@ -176,7 +176,7 @@ mainloop:
 
 	; set the bg palette
 	WaitVRAMAvailable
-	ld	a,$E5;7
+	ld	a,$E5
 	ldh	[rBGP],a
 
 	call	SoundSystem_Process

@@ -376,7 +376,7 @@ ELSE
 SECTION	"SoundSystem_Identity",ROMX,BANK[SOUNDSYSTEM_CODE_BANK]
 ENDC
 SoundSystem_Version::
-	DB	"SoundSystem v20.232",$00
+	DB	"SoundSystem v20.249",$00
 SoundSystem_Author::
 	DB	"Code: S. Hockenhull",$00
 
