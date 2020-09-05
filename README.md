@@ -37,7 +37,7 @@ You will need to make some changes in the `.z80` file. First, you need to delete
 ## SoundSystem Source
 There are four source files provided in the SoundSystem driver:
 - [SoundSystem.asm](Driver/SoundSystem.asm) (required)
-- [SoundSystem.def](Driver/SoundSystem.def) (required)
+- [SoundSystem.def](Driver/SoundSystem.def) (optional if you keep the defaults; required if you want to customize)
 - [SoundSystem.inc](Driver/SoundSystem.inc) (required)
 - [SoundSystemNotes.inc](Driver/SoundSystemNotes.inc) (optional)
 
