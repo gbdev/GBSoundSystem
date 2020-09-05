@@ -78,7 +78,7 @@ SOUNDSYSTEM_INC	SET	1
 ; Notes:
 ; - This needs to be called before every call to Music_Play.
 ; - The instrument table is part of the data that is exported by GB Tracker.
-; Labelled as 'SFX Table' at the end of the exported data.
+; Labeled as 'SFX Table' at the end of the exported data.
 ;
 ; Arguments:
 ;    BC - bank id where the instrument table resides
@@ -101,7 +101,7 @@ SOUNDSYSTEM_INC	SET	1
 ; Notes:
 ; - Music_PrepareInst needs to be called before this.
 ; - The music table is part of the data that is exported by GB Tracker.
-; Labelled as 'Order Table' before the SFX data in the exported data.
+; Labeled as 'Order Table' before the SFX data in the exported data.
 ;
 ; Arguments:
 ;    BC - bank id where the order table resides
@@ -122,7 +122,7 @@ SOUNDSYSTEM_INC	SET	1
 ;
 ; Notes:
 ; - Subsequent calls to Music_Pause have no effect.
-; - Calling Music_Pause before Music_Play hos no effect, but best
+; - Calling Music_Pause before Music_Play has no effect, but best
 ; practice is to only call Music_Pause after Music_Play.
 ;
 ; Arguments:
@@ -164,7 +164,7 @@ SOUNDSYSTEM_INC	SET	1
 ; - This needs to be called just once per 'set' of sound effects. Once called,
 ; any number of SFX_Play calls can be made.
 ; - Typically, sound effects are kept separate to any music data.
-; - Even though they might be labelled the same way in the exported data,
+; - Even though they might be labeled the same way in the exported data,
 ; one-shot sound effects are different that the sounds in music data.
 ;
 ; Arguments:
@@ -186,7 +186,7 @@ SOUNDSYSTEM_INC	SET	1
 ; Notes:
 ; - SFX_Prepare needs to be called before this.
 ; - The sfx table is part of the data that is exported by GB Tracker.
-; Labelled as 'SFX Table' in the exported data.
+; Labeled as 'SFX Table' in the exported data.
 ; - The note will only take affect if the sound doesn't set a note in its
 ; start command.
 ;
@@ -227,7 +227,7 @@ SOUNDSYSTEM_INC	SET	1
 ; that channel until it is unlocked again.
 ;
 ; Notes:
-; - Sequent calls to either SFX_LockChannel3 or SFX_UnlockChannel3 have no
+; - Subsequent calls to either SFX_LockChannel3 or SFX_UnlockChannel3 have no
 ; effect. Only the first call changes behavior.
 ; - Channel 3 is unlocked by default.
 ;

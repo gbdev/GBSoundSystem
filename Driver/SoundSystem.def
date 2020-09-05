@@ -1,5 +1,5 @@
 
-; This is the definitions files for SoundSystem. By including/exluding
+; This is the definitions file for SoundSystem. By including/excluding
 ; certain values described below, you can include/exclude features and
 ; control the behavior. These are build-time settings, so you can turn
 ; code on and off depending on your specifications.
