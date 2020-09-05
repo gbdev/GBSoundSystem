@@ -78,7 +78,8 @@ SOUNDSYSTEM_INC	SET	1
 ; Notes:
 ; - This needs to be called before every call to Music_Play.
 ; - The instrument table is part of the data that is exported by GB Tracker.
-; Labeled as 'SFX Table' at the end of the exported data.
+; Labeled as 'SFX Table' at the end of the exported data (the symbol starts
+; with 'Inst_').
 ;
 ; Arguments:
 ;    BC - bank id where the instrument table resides
@@ -164,8 +165,8 @@ SOUNDSYSTEM_INC	SET	1
 ; - This needs to be called just once per 'set' of sound effects. Once called,
 ; any number of SFX_Play calls can be made.
 ; - Typically, sound effects are kept separate to any music data.
-; - Even though they might be labeled the same way in the exported data,
-; one-shot sound effects are different that the sounds in music data.
+; - The sfx table is part of the data that is exported by GB Tracker.
+; Commented as 'SFX Table' in the exported data (the symbol starts with 'SFX').
 ;
 ; Arguments:
 ;    BC - bank id where the sfx table resides
@@ -185,8 +186,6 @@ SOUNDSYSTEM_INC	SET	1
 ;
 ; Notes:
 ; - SFX_Prepare needs to be called before this.
-; - The sfx table is part of the data that is exported by GB Tracker.
-; Labeled as 'SFX Table' in the exported data.
 ; - The note will only take affect if the sound doesn't set a note in its
 ; start command.
 ;
