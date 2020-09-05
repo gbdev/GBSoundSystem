@@ -6,7 +6,7 @@ The GameBoy Tracker audio system (aka The Paragon5 player) was created in 1999 b
 
 Stephane graciously released the [export-capable tracker and replay routines](https://rv6502.ca/wiki/index.php?title=Game_Boy_Tracker) to the public in July 2014. The assembler files that it exports were compliant with a circa 2014 version of [RGBDS](https://github.com/rednex/rgbds).
 
-RGBDS has since seen many upgrades and improvements that make those tracker-exported assembler files unusable (without modification, see the Integration section below) with today's RGBDS. The player code itself is showing its age, making it also quite difficult to integrate.
+RGBDS has since seen many upgrades and improvements that make those tracker-exported assembler files unusable (without modification, see [Integration](https://github.com/BlitterObjectBob/GBSoundSystem#integration) below) with today's RGBDS. The player code itself is showing its age, making it also quite difficult to integrate.
 
 Thus, the **SoundSystem** audio driver was created.
 
@@ -15,7 +15,7 @@ The SoundSystem driver is a modernization of the GameBoy Tracker **replayer** th
 
 You can put the SoundSystem driver code in any bank you wish, and it includes support for very large ROMs (more than 256 banks). Instead of one large section of a bank for the code, the SoundSystem driver code is composed of many small [sections](https://rednex.github.io/rgbds/rgbasm.5.html#SECTIONS) so it can fit around your more critical code and locations in a bank. It can play both music and sound effects at the same time, and is very fast, even on DMG!
 
-Other peep-hole optimizations were made and it is free of [exceptions](https://bgb.bircd.org/manual.html#features). It is as fast (if not *slightly* faster in some cases) as the original replayer and consumes about the same amount of ROM and WRAM space: 3329- bytes* of ROM, and 91- bytes* WRAM (* depending on the options you assemble with. See the Integration section below for more details.)
+Other peep-hole optimizations were made and it is free of [exceptions](https://bgb.bircd.org/manual.html#features). It is as fast (if not *slightly* faster in some cases) as the original replayer and consumes about the same amount of ROM and WRAM space: 3329 bytes max* of ROM, and 91- bytes max* of WRAM (* depending on the options you assemble with. See [Integration](https://github.com/BlitterObjectBob/GBSoundSystem#integration) below for more details.)
 
 
 # Materials
@@ -36,16 +36,16 @@ You will need to make some changes in the `.z80` file. First, you need to delete
 
 ## SoundSystem Source
 There are four source files provided in the SoundSystem driver:
-- [SoundSystem.asm](Player/SoundSystem.asm) (required)
-- [SoundSystem.def](Player/SoundSystem.def) (required)
-- [SoundSystem.inc](Player/SoundSystem.inc) (required)
-- [SoundSystemNotes.inc](Player/SoundSystemNotes.inc) (optional)
+- [SoundSystem.asm](Driver/SoundSystem.asm) (required)
+- [SoundSystem.def](Driver/SoundSystem.def) (required)
+- [SoundSystem.inc](Driver/SoundSystem.inc) (required)
+- [SoundSystemNotes.inc](Driver/SoundSystemNotes.inc) (optional)
 
---
+---
 ### `SoundSystem.asm`
-This is the entire source code to the SoundSystem driver. Every routine and code block is contained in its own `SECTION` but which routines that get assembled is determined by the contents of [SoundSystem.def](Player/SoundSystem.def). For example, if you only need to play music (say, for a demo), you don't have to include the code that plays sound effects. Similarly, if your project doesn't need the VU meters feature, you can disable that code to make the ROM (and WRAM) footprint smaller.
+This is the entire source code to the SoundSystem driver. Every routine and code block is contained in its own `SECTION` but which routines that get assembled is determined by the contents of [SoundSystem.def](Driver/SoundSystem.def). For example, if you only need to play music (say, for a demo), you don't have to include the code that plays sound effects. Similarly, if your project doesn't need the VU meters feature, you can disable that code to make the ROM (and WRAM) footprint smaller.
 
---
+---
 ### `SoundSystem.def`
 This is an `INCLUDE` file that controls the behavior of the SoundSystem driver. By including/excluding certain values described below, you can include/exclude features and control the behavior. These are build-time settings, so you can turn code on and off depending on your specifications.
 
@@ -106,11 +106,11 @@ They are contiguous in memory so you can access them as an array if needed.
 - If `SOUNDSYSTEM_ENABLE_VUM` set to 0 or not defined, the 'wVUMeterN' variables will not be available.
 - CPU, code size, and RAM usage is slightly more if this is enabled.
 
---
+---
 ### `SoundSystem.inc`
-This is essentially documentation on the routines included in the driver and any supporting `EQU`ates. (The text from The API section below came from this file.)
+This is essentially documentation on the routines included in the driver and any supporting `EQU`ates. (The text from [The API](https://github.com/BlitterObjectBob/GBSoundSystem#the-api) section below came from this file.)
 
---
+---
 ### `SoundSystemNotes.inc`
 This is an optional `INCLUDE` file provided as a convenience. It contains `EQU`ates for note values that you can pass into `SFX_Play`. *You do not need to include this file in your project if you don't need it.*
 
@@ -132,7 +132,7 @@ This prepares SoundSystem for use. It must be called before any other SoundSyste
     call SoundSystem_Init
 ```
 
---
+---
 ### `SoundSystem_Process`
 This is the 'heartbeat' of the driver so it should be called every frame. The exact time (in a VBlank or during a frame) isn't important; provided it is called at a regular interval.
 
@@ -140,7 +140,7 @@ CPU usage is dependent on the audio SoundSystem is processing. Each effect has a
 
 **Notes**:
 - Registers will not be preserved.
-- ROM/WRAM banks could change (based on [SoundSystem.def](Player/SoundSystem.def) settings).
+- ROM/WRAM banks could change (based on [SoundSystem.def](Driver/SoundSystem.def) settings).
 
 **Arguments**: None
 
@@ -172,7 +172,7 @@ In order for music to be playable with `Music_Play` (see below), it needs to be 
     call Music_PrepareInst
 ```
 
---
+---
 ### `Music_Play`
 This is the trigger to start music actually playing (and processed by `SoundSystem_Process`). The order table data can reside in a different location to the instrument data. SoundSystem will handle bank swapping as and when it needs to.
 
@@ -191,7 +191,7 @@ This is the trigger to start music actually playing (and processed by `SoundSyst
     call Music_Play
 ```
 
---
+---
 ### `Music_Pause`
 This pauses music playback. After the music is paused, it is safe to call `SoundSystem_Process` and sound effects can still be triggered. Call `Music_Resume` (see below) to continue the music playback.
 
@@ -206,7 +206,7 @@ This pauses music playback. After the music is paused, it is safe to call `Sound
     call Music_Pause
 ```
 
---
+---
 ### `Music_Resume`
 This resumes music playback after `Music_Pause` (see above) has called.
 
@@ -241,7 +241,7 @@ In order for one-shot sound effects (SFX) to be playable with `SFX_Play` (see be
     call SFX_Prepare
 ```
 
---
+---
 ### `SFX_Play`
 This is the trigger to start a one-shot sound effect actually playing (and processed by `SoundSystem_Process`).
 
@@ -252,7 +252,7 @@ This is the trigger to start a one-shot sound effect actually playing (and proce
 
 **Arguments**:
 - B - id (not byte offset) of the sound effect to play
-- C - note (frequency) at which to play the sound effect, 0-71; 6 octaves of 12 notes: C_2 (0) to B_7 (71), middle C is C_4 (24). See [SoundSystemNotes.inc](Player/SoundSystemNotes.inc) for specific values.
+- C - note (frequency) at which to play the sound effect, 0-71; 6 octaves of 12 notes: C_2 (0) to B_7 (71), middle C is C_4 (24). See [SoundSystemNotes.inc](Driver/SoundSystemNotes.inc) for specific values.
 
 **Example**:
 ```
@@ -262,7 +262,7 @@ This is the trigger to start a one-shot sound effect actually playing (and proce
     call SFX_Play
 ```
 
---
+---
 ### `SFX_Stop`
 This immediately terminates all one-shot sound effects from playing.
 
@@ -276,7 +276,7 @@ This immediately terminates all one-shot sound effects from playing.
     call SFX_Stop
 ```
 
---
+---
 ### `SFX_LockChannel3`/`SFX_UnlockChannel3`
 This pair of routines affect the wave channel (channel 3) of the GameBoy. Locking the channel will prevent music and other sound effects from using that channel until it is unlocked again.
 
@@ -312,7 +312,7 @@ The tracker has a mechanism that provides a way to synchronize the code with the
 
 
 ### VU Meters
-SoundSystem can provide data that can drive a VU-meter type display. This is disabled by default, but access to that data is provided by setting `SOUNDSYSTEM_ENABLE_VUM` in [SoundSystem.def](Player/SoundSystem.def) to 1.
+SoundSystem can provide data that can drive a VU-meter type display. This is disabled by default, but access to that data is provided by setting `SOUNDSYSTEM_ENABLE_VUM` in [SoundSystem.def](Driver/SoundSystem.def) to 1.
 
 If enabled, the data (value $0-$F) is in 4 1-byte variables, one per channel:
 - `wVUMeter1` = channel 1
@@ -331,7 +331,7 @@ There are two symbols that can be used for attribution: `SoundSystem_Version` an
 **Notes**:
 - These are NULL-terminated strings.
 
---
+---
 # Important Notes
 
 This repository was created and is maintained by GBSS maintainers with Stephane's approval. As such, if you have questions or comments about **SoundSystem**, you can create an issue here in the repository (feel free to create a PR if you're so inclined) and direct them to me.
