@@ -95,10 +95,10 @@ By default, SoundSystem assumes it is part of a game (instead of a demo or some 
 SoundSystem can provide data that can drive a VU-meter type display. This is disabled by default, but access to that data is provided by setting `SOUNDSYSTEM_ENABLE_VUM` to 1.
 
 If enabled, the data (value $0-$F) is in 4 1-byte variables, one per channel:
-- 'wVUMeter1' = channel 1
-- 'wVUMeter2' = channel 2
-- 'wVUMeter3' = channel 3
-- 'wVUMeter4' = channel 4
+- `wVUMeter1` = channel 1
+- `wVUMeter2` = channel 2
+- `wVUMeter3` = channel 3
+- `wVUMeter4` = channel 4
 
 They are contiguous in memory so you can access them as an array if needed.
 
