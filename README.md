@@ -28,7 +28,7 @@ The tracker program is part of Stephane's release materials that you can downloa
 
 # Integration
 ## Song/Instrument Data
-As was perviously mentioned, the source files that GameBoy Tracker exports are for an old version of RGBDS, so they will need modification before they can assemble successfully.
+As was previously mentioned, the source files that GameBoy Tracker exports are for an old version of RGBDS, so they will need modification before they can assemble successfully.
 
 For each song (or set of sound effects) that you export, two files will be created: a `.z80` source code file that contains the data, and a `.inc` file that has declarations for exported symbols. You won't need the `.inc` file so you can delete it.
 
@@ -43,7 +43,18 @@ There are four source files provided in the SoundSystem driver:
 
 ---
 ### `SoundSystem.asm`
-This is the entire source code to the SoundSystem driver. Every routine and code block is contained in its own `SECTION` but which routines that get assembled is determined by the contents of [SoundSystem.def](Driver/SoundSystem.def). For example, if you only need to play music (say, for a demo), you don't have to include the code that plays sound effects. Similarly, if your project doesn't need the VU meters feature, you can disable that code to make the ROM (and WRAM) footprint smaller.
+This is the entire source code to the SoundSystem driver; it is self-contained and doesn't require any external (non SoundSystem) `INCLUDE` files. Every routine and code block is contained in its own `SECTION` but the actual routines that get assembled is determined by the contents of [SoundSystem.def](Driver/SoundSystem.def). For example, if you only need to play music (say, for a demo), you don't have to include the code that plays sound effects. Similarly, if your project doesn't need the VU meters feature, you can disable that code to make the ROM (and WRAM) footprint smaller.
+
+After successful assembly of this file, it will display the configuration it was built with (as defined by `SoundSystem.def`). For example:
+```
+SoundSystem Configuration:
+     GBC Only: no
+    Large ROM: no
+    Code Bank: $0
+    WRAM Bank: $0
+          SFX: ENABLED
+    VU Meters: ENABLED
+```
 
 ---
 ### `SoundSystem.def`
@@ -159,7 +170,7 @@ In order for music to be playable with `Music_Play` (see below), it needs to be 
 
 **Notes**:
 - This needs to be called before every call to `Music_Play`.
-- The instrument table is part of the data that is exported by GB Tracker. Labeled as 'SFX Table' at the end of the exported data.
+- The instrument table is part of the data that is exported by GB Tracker. Commented as 'SFX Table' at the end of the exported data (the symbol starts with `Inst_`).
 
 **Arguments**:
 - BC - bank id where the instrument table resides
@@ -228,7 +239,7 @@ In order for one-shot sound effects (SFX) to be playable with `SFX_Play` (see be
 **Notes**:
 - This needs to be called just once per 'set' of sound effects. Once called, any number of `SFX_Play` calls can be made.
 - Typically, sound effects are kept separate to any music data.
-- Even though they might be labeled the same way in the exported data, one-shot sound effects are different that the sounds in music data.
+- The sfx table is part of the data that is exported by GB Tracker. Commented as 'SFX Table' in the exported data (the symbol starts with `SFX`).
 
 **Arguments**:
 - BC - bank id where the sfx table resides
@@ -247,7 +258,6 @@ This is the trigger to start a one-shot sound effect actually playing (and proce
 
 **Notes**:
 - SFX_Prepare needs to be called before this.
-- The sfx table is part of the data that is exported by GB Tracker. Labeled as 'SFX Table' in the exported data.
 - The note will only take affect if the sound doesn't set a note in its start command.
 
 **Arguments**:
