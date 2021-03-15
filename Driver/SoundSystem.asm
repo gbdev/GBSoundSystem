@@ -412,18 +412,18 @@ SoundSystem_Init::
 	ld	e,4
 	IF (SOUNDSYSTEM_LARGE_ROM)
 .instbankloop:
-	ld  a,LOW(BANK(Music_InstrumentEnd))
-	ld  [hl+],a
-	ld  a,HIGH(BANK(Music_InstrumentEnd))
-	ld  [hl+],a
-	dec e
-	jr  nz,.instbankloop
+	ld	a,LOW(BANK(Music_InstrumentEnd))
+	ld	[hl+],a
+	ld	a,HIGH(BANK(Music_InstrumentEnd))
+	ld	[hl+],a
+	dec	e
+	jr	nz,.instbankloop
 	ELSE
-	ld  a,BANK(Music_InstrumentEnd)
+	ld	a,BANK(Music_InstrumentEnd)
 .instbankloop:
-	ld  [hl+],a
-	dec e
-	jr  nz,.instbankloop
+	ld	[hl+],a
+	dec	e
+	jr	nz,.instbankloop
 	ENDC
 
 	; set all channel volumes to 8
