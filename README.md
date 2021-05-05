@@ -76,6 +76,13 @@ By default, SoundSystem assumes it is part of a 'small' ROM. That is, 4MBytes (2
 - If `SOUNDSYSTEM_LARGE_ROM` is 0 or not defined, the value for `SOUNDSYSTEM_CODE_BANK` must be <256.
 - CPU, code size, and RAM usage is slightly more if this is enabled.
 
+#### `SOUNDSYSTEM_ROM_BANKING`
+By default, SoundSystem will automatically store and change ROM banks. However, if your ROM does not use banking (i.e. it is a 32KByte ROM), set `SOUNDSYSTEM_ROM_BANKING` to 0, and the current ROM bank will be left alone.
+
+**Notes**:
+- If SOUNDSYSTEM_ROM_BANKING is not defined, banking will be enabled.
+- CPU, code size, and RAM usage is slightly less if this is disabled.
+
 #### `SOUNDSYSTEM_CODE_BANK`
 By default, SoundSystem will place its code and data in ROM bank 0. If you want to place it in a different bank, set `SOUNDSYSTEM_CODE_BANK` to the bank id.
 
