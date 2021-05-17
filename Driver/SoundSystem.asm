@@ -1127,7 +1127,7 @@ Music_Pause::
 	;-------------------------------
 	; channel 4
 	bit	SFXLOCKB_CHANNEL4,b	; is channel 4 playing music?
-	ret	nz			; no, exit
+	ret	z			; no, exit
 	; clear the channel 4 registers
 	xor	a
 	ldh	[rAUD4ENV],a
