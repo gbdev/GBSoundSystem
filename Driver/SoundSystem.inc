@@ -1,5 +1,5 @@
 IF !DEF(SOUNDSYSTEM_INC)
-SOUNDSYSTEM_INC	SET	1
+SOUNDSYSTEM_INC	=	1
 
 ;===============================
 ; Usage
